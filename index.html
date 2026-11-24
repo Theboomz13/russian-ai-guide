@@ -7,7 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Sarabun', sans-serif; }
+    body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f4f6fa; color: #1e293b; }
+    .hidden { display: none !important; }
     .pulse-mic { animation: pulse 1.2s infinite; }
     @keyframes pulse {
       0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
@@ -98,7 +99,6 @@
       </div>
     </div>
   </div>
-
   <!-- ==================== 2. STUDENT VIEW ==================== -->
   <div id="studentView" class="hidden flex-1 flex flex-col">
     <header class="bg-gradient-to-r from-[#141e30] to-[#243b55] text-white p-3.5 shadow">
@@ -128,7 +128,6 @@
           <select id="missionSelect" onchange="onMissionChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"></select>
         </div>
       </div>
-
       <div id="missionStageBar" class="bg-white px-4 py-3 rounded-xl shadow-sm border border-slate-200 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <span class="text-xs font-bold text-slate-600">รายการภารกิจและตารางสรุปคะแนนในพื้นที่นี้ (เสียงผู้ชาย: Алексей)</span>
@@ -156,9 +155,7 @@
           </table>
         </div>
       </div>
-
       <div id="chatBox" class="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 p-4 overflow-y-auto space-y-4 min-h-[320px] max-h-[55vh]"></div>
-
       <div id="scoreCard" class="hidden bg-emerald-50 border-2 border-emerald-400 rounded-xl p-4 shadow">
         <div class="flex justify-between items-center mb-2">
           <h3 class="font-bold text-emerald-900">🎉 ภารกิจสำเร็จ! ผลการประเมิน</h3>
@@ -176,7 +173,6 @@
           <button type="button" onclick="resetMissionProgressOnClient()" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-semibold">🔄 ทำภารกิจนี้ใหม่</button>
         </div>
       </div>
-
       <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex items-center gap-2">
         <button id="micBtn" onclick="toggleMic()" title="กดเพื่อเปิดไมค์ และกดอีกครั้งเพื่อปิดไมค์" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2.5 rounded-full flex-shrink-0 text-xs font-bold flex items-center gap-1">
           <span id="micIcon">🎤</span><span id="micLabel">พูด</span>
@@ -186,7 +182,6 @@
       </div>
     </main>
   </div>
-
   <!-- ==================== 3. DASHBOARD VIEW ==================== -->
   <div id="dashboardView" class="hidden flex-1 flex flex-col">
     <header class="bg-gradient-to-r from-[#141e30] to-[#243b55] text-white shadow-md">
@@ -230,7 +225,6 @@
           </div>
         </div>
       </div>
-
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-sm font-bold text-slate-800">🔍 ตัวกรองข้อมูลผู้เรียน</h3>
@@ -258,7 +252,6 @@
           </div>
         </div>
       </div>
-
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center bg-slate-50/70">
           <h3 id="currentSchoolHeading" class="font-bold text-slate-900 text-sm sm:text-base">📋 ตารางสรุปคะแนนนักเรียน</h3>
@@ -287,14 +280,12 @@
           </table>
         </div>
       </div>
-
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
         <h3 class="font-bold text-slate-800 text-sm mb-3">🕒 ความคืบหน้าล่าสุดของนักเรียน (กำลังฝึกสนทนาอยู่)</h3>
         <div id="progressListBox" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs"></div>
       </div>
     </main>
   </div>
-
   <script>
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec';
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
@@ -316,7 +307,6 @@
       'หนองบัวลำภู', 'อ่างทอง', 'อุดรธานี', 'อุทัยธานี', 'อุตรดิตถ์',
       'อุบลราชธานี', 'อำนาจเจริญ'
     ].sort((a, b) => a.localeCompare(b, 'th'));
-
     let currentUser = null;
     let allMissions = [];
     let allSchools = [];
@@ -340,22 +330,18 @@
       const voices = loadSpeechVoices();
       const ruVoices = voices.filter(v => String(v.lang || '').toLowerCase().startsWith('ru'));
       if (ruVoices.length === 0) return null;
-
       const maleKeywords = ['male', 'pavel', 'dmitry', 'maksim', 'maxim', 'ivan', 'boris', 'sergey', 'yuri', 'alexey', 'русский'];
       const femaleKeywords = ['female', 'irina', 'svetlana', 'elena', 'milena', 'natasha', 'maria', 'anna', 'olga', 'tatiana', 'yulia'];
-
       for (let i = 0; i < ruVoices.length; i++) {
         const nameLower = String(ruVoices[i].name || '').toLowerCase();
         if (maleKeywords.some(k => nameLower.includes(k))) {
           return ruVoices[i];
         }
       }
-
       const nonFemaleRu = ruVoices.find(v => {
         const nameLower = String(v.name || '').toLowerCase();
         return !femaleKeywords.some(k => nameLower.includes(k));
       });
-
       return nonFemaleRu || ruVoices[0];
     }
 
@@ -372,6 +358,48 @@
       return json.data;
     }
 
+    function callApiViaJsonp(cleanUrl, action, payload = {}) {
+      return new Promise((resolve, reject) => {
+        const cbName = '__gas_cb_' + Date.now() + '_' + Math.floor(Math.random() * 100000);
+        const script = document.createElement('script');
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error('หมดเวลาเชื่อมต่อเซิร์ฟเวอร์ (JSONP timeout)'));
+        }, 20000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          if (script && script.parentNode) script.parentNode.removeChild(script);
+          try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+        }
+
+        window[cbName] = (resJson) => {
+          cleanup();
+          try {
+            if (!resJson || typeof resJson !== 'object') {
+              reject(new Error('ข้อมูลตอบกลับจากเซิร์ฟเวอร์ไม่ถูกต้อง'));
+              return;
+            }
+            if (!resJson.ok) {
+              reject(new Error(resJson.error || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์'));
+              return;
+            }
+            resolve(resJson.data);
+          } catch (err) {
+            reject(err);
+          }
+        };
+
+        const encodedPayload = encodeURIComponent(JSON.stringify(payload));
+        script.src = `${cleanUrl}${cleanUrl.includes('?') ? '&' : '?'}action=${encodeURIComponent(action)}&payload=${encodedPayload}&callback=${encodeURIComponent(cbName)}&_t=${Date.now()}`;
+        script.onerror = () => {
+          cleanup();
+          reject(new Error('ไม่สามารถโหลดสคริปต์จาก GAS_API_URL ได้ (ตรวจสอบสิทธิ์ Deploy เป็น Anyone)'));
+        };
+        document.body.appendChild(script);
+      });
+    }
+
     async function callApi(action, payload = {}) {
       const cleanUrl = String(GAS_API_URL || '').trim();
       try {
@@ -381,19 +409,12 @@
           body: JSON.stringify({ action, payload })
         });
         const rawText = await res.text();
-        if (res.status === 405) {
-          throw new Error('HTTP 405 Not Allowed');
+        if (res.status === 405 || !res.ok) {
+          throw new Error(`HTTP ${res.status}`);
         }
         return parseApiResponseText(rawText);
       } catch (postErr) {
-        const encodedPayload = encodeURIComponent(JSON.stringify(payload));
-        const getUrl = `${cleanUrl}${cleanUrl.includes('?') ? '&' : '?'}action=${encodeURIComponent(action)}&payload=${encodedPayload}&_t=${Date.now()}`;
-        const fallbackRes = await fetch(getUrl, { method: 'GET' });
-        const fallbackText = await fallbackRes.text();
-        if (!fallbackRes.ok) {
-          throw new Error(`เรียก API ไม่สำเร็จ (${postErr.message} / GET HTTP ${fallbackRes.status}): ${fallbackText.slice(0, 120)}`);
-        }
-        return parseApiResponseText(fallbackText);
+        return await callApiViaJsonp(cleanUrl, action, payload);
       }
     }
 
