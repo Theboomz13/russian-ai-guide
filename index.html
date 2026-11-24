@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ยุวมัคคุเทศก์ไทย AI</title>
-  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-  <link href="[https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Sarabun', sans-serif; }
     .pulse-mic { animation: pulse 1.2s infinite; }
@@ -105,7 +105,7 @@
       <div class="max-w-4xl mx-auto flex justify-between items-center">
         <div class="flex items-center gap-3">
           <div class="relative group cursor-pointer" onclick="document.getElementById('changeAvatarInput').click()" title="คลิกเพื่อเปลี่ยนรูปประจำตัว">
-            <img id="stAvatar" src="[https://ui-avatars.com/api/?name=Student&background=243b55&color=fff](https://ui-avatars.com/api/?name=Student&background=243b55&color=fff)" class="w-10 h-10 rounded-full object-cover border-2 border-amber-300">
+            <img id="stAvatar" src="https://ui-avatars.com/api/?name=Student&background=243b55&color=fff" class="w-10 h-10 rounded-full object-cover border-2 border-amber-300">
             <span class="absolute bottom-0 right-0 bg-amber-400 text-[10px] text-black px-1 rounded-full font-bold">✎</span>
           </div>
           <input id="changeAvatarInput" type="file" accept="image/*" class="hidden" onchange="handleChangeAvatar(event)">
@@ -296,7 +296,7 @@
   </div>
 
   <script>
-    const GAS_API_URL = '[https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec](https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec)';
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec';
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
     const THAI_PROVINCES = [
       'กระบี่', 'กรุงเทพมหานคร', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร',
@@ -1095,7 +1095,7 @@
           <tr class="hover:bg-blue-50/40 transition">
             <td class="p-3">
               <div class="flex items-center gap-2.5">
-                <img src="${r.avatarUrl || '[https://ui-avatars.com/api/?name=](https://ui-avatars.com/api/?name=)' + encodeURIComponent(r.fullName) + '&background=dbeafe&color=1e3a8a'}" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                <img src="${r.avatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(r.fullName) + '&background=dbeafe&color=1e3a8a'}" class="w-8 h-8 rounded-full object-cover border border-slate-200">
                 <div>
                   <div class="font-bold text-slate-800">${escapeHtml(r.fullName)}</div>
                   <div class="text-[10px] text-slate-400">${escapeHtml(r.username)}</div>
@@ -1121,7 +1121,7 @@
       } else {
         progBox.innerHTML = filteredProgress.map(p => `
           <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5">
-            <img src="${p.avatarUrl || '[https://ui-avatars.com/api/?name=](https://ui-avatars.com/api/?name=)' + encodeURIComponent(p.fullName) + '&background=dbeafe&color=1e3a8a'}" class="w-9 h-9 rounded-full object-cover border">
+            <img src="${p.avatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(p.fullName) + '&background=dbeafe&color=1e3a8a'}" class="w-9 h-9 rounded-full object-cover border">
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-1">
                 <b class="text-[#141e30] truncate">${escapeHtml(p.fullName)}</b>
