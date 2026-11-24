@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ยุวมัคคุเทศก์ไทย AI (ภาษารัสเซีย ม.๔)</title>
+  <title>ยุวมัคคุเทศก์ไทย AI</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -137,6 +137,10 @@
           <label class="text-xs font-bold text-slate-500">2. เลือกภารกิจ</label>
           <select id="missionSelect" onchange="onMissionChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white"></select>
         </div>
+      </div>
+
+      <div id="missionStatusBanner" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-900 px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-between">
+        <span id="missionStatusText"></span>
       </div>
 
       <div id="chatBox" class="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-y-auto space-y-4 min-h-[340px] max-h-[55vh]"></div>
@@ -284,6 +288,7 @@
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec';
 
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
+    const MAX_MISSION_SCORE = 10;
 
     // รายชื่อจังหวัดในประเทศไทยทั้ง 77 จังหวัด เรียงตามพยัญชนะไทย
     const THAI_PROVINCES = [
@@ -308,6 +313,7 @@
     let currentUser = null;
     let allMissions = [];
     let allSchools = [];
+    let completedMissionScores = {}; // เก็บ { "provinceId|unitKey": score }
     let rawDashboardData = { students: [], scores: [], progress: [] };
     let chatHistory = [];
     let isRecording = false;
@@ -458,6 +464,7 @@
         currentUser = res.user;
         allSchools = res.schools || [];
         allMissions = res.missions || [];
+        completedMissionScores = res.completedMissionScores || {};
 
         document.getElementById('authView').classList.add('hidden');
         const role = currentUser.role.toLowerCase();
@@ -473,6 +480,7 @@
 
     function logout() {
       currentUser = null;
+      completedMissionScores = {};
       chatHistory = [];
       document.getElementById('studentView').classList.add('hidden');
       document.getElementById('dashboardView').classList.add('hidden');
@@ -496,15 +504,39 @@
         provSel.value = lastProgress.provinceId;
         populateMissionDropdown(lastProgress.provinceId);
         document.getElementById('missionSelect').value = lastProgress.unitKey;
+        updateMissionStatusBanner(lastProgress.provinceId, lastProgress.unitKey);
         restoreChatHistory(lastProgress.chatHistory);
       } else {
         onProvinceChange();
       }
     }
 
+    function formatMissionOptionLabel(mission) {
+      const key = `${mission.province_id}|${mission.unit_key}`;
+      if (Object.prototype.hasOwnProperty.call(completedMissionScores, key)) {
+        const earned = Number(completedMissionScores[key]) || 0;
+        return `${mission.mission_title_th} ✅ ทำแล้ว (${earned}/${MAX_MISSION_SCORE})`;
+      }
+      return mission.mission_title_th;
+    }
+
+    function updateMissionStatusBanner(provId, unitKey) {
+      const banner = document.getElementById('missionStatusBanner');
+      const txt = document.getElementById('missionStatusText');
+      const key = `${provId}|${unitKey}`;
+      if (Object.prototype.hasOwnProperty.call(completedMissionScores, key)) {
+        const earned = Number(completedMissionScores[key]) || 0;
+        txt.innerText = `✅ ทำแล้ว (${earned}/${MAX_MISSION_SCORE}) — สามารถฝึกซ้ำเพื่อพัฒนาคะแนนให้ดียิ่งขึ้นได้ครับ`;
+        banner.classList.remove('hidden');
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
     function populateMissionDropdown(provId) {
       const list = allMissions.filter(m => m.province_id === provId);
-      document.getElementById('missionSelect').innerHTML = list.map(m => `<option value="${m.unit_key}">${escapeHtml(m.mission_title_th)}</option>`).join('');
+      document.getElementById('missionSelect').innerHTML = list
+        .map(m => `<option value="${m.unit_key}">${escapeHtml(formatMissionOptionLabel(m))}</option>`).join('');
     }
 
     function onProvinceChange() {
@@ -515,12 +547,24 @@
     async function onMissionChange() {
       const provId = document.getElementById('provinceSelect').value;
       const unitKey = document.getElementById('missionSelect').value;
+      updateMissionStatusBanner(provId, unitKey);
       document.getElementById('scoreCard').classList.add('hidden');
       document.getElementById('chatBox').innerHTML = '<div class="text-xs text-slate-400 text-center py-4">กำลังตรวจสอบความคืบหน้าเดิม...</div>';
 
       try {
-        const savedHistory = await callApi('loadSpecificProgress', { username: currentUser.username, provinceId: provId, unitKey });
-        restoreChatHistory(savedHistory);
+        const res = await callApi('loadSpecificProgress', {
+          username: currentUser.username,
+          provinceId: provId,
+          unitKey,
+          schoolName: currentUser.schoolName
+        });
+        if (res && res.completedMissionScores) {
+          completedMissionScores = res.completedMissionScores;
+          populateMissionDropdown(provId);
+          document.getElementById('missionSelect').value = unitKey;
+          updateMissionStatusBanner(provId, unitKey);
+        }
+        restoreChatHistory(res && res.chatHistory ? res.chatHistory : []);
       } catch (err) {
         restoreChatHistory([]);
       }
@@ -632,20 +676,36 @@
 
       chatHistory.push({ role: "user", parts: [{ text: text }] });
 
+      const provId = document.getElementById('provinceSelect').value;
+      const unitKey = document.getElementById('missionSelect').value;
+
       try {
         const res = await callApi('handleStudentMessage', {
           username: currentUser.username,
           fullName: currentUser.fullName,
           schoolName: currentUser.schoolName,
-          provinceId: document.getElementById('provinceSelect').value,
-          unitKey: document.getElementById('missionSelect').value,
+          provinceId: provId,
+          unitKey: unitKey,
           chatHistory: chatHistory
         });
         const ai = res.ai;
         chatHistory.push({ role: "model", parts: [{ text: JSON.stringify(ai) }] });
         appendAiBubble(ai);
         speakRussian(ai.reply_ru);
-        if (ai.is_mission_complete && ai.evaluation) showScoreCard(ai.evaluation);
+
+        if (res.completedMissionScores) {
+          completedMissionScores = res.completedMissionScores;
+        }
+        if (ai.is_mission_complete && ai.evaluation) {
+          const mKey = `${provId}|${unitKey}`;
+          const prevBest = Number(completedMissionScores[mKey]) || 0;
+          const newScore = Number(ai.evaluation.total_score) || 0;
+          completedMissionScores[mKey] = Math.max(prevBest, newScore);
+          populateMissionDropdown(provId);
+          document.getElementById('missionSelect').value = unitKey;
+          updateMissionStatusBanner(provId, unitKey);
+          showScoreCard(ai.evaluation);
+        }
       } catch (err) {
         chatHistory.pop();
         alert(err.message);
@@ -687,7 +747,7 @@
 
     function showScoreCard(ev) {
       document.getElementById('scoreCard').classList.remove('hidden');
-      document.getElementById('totalScoreBadge').innerText = `${ev.total_score} / 10 คะแนน`;
+      document.getElementById('totalScoreBadge').innerText = `${ev.total_score} / ${MAX_MISSION_SCORE} คะแนน`;
       document.getElementById('scTask').innerText = ev.task_completion;
       document.getElementById('scVocab').innerText = ev.vocabulary;
       document.getElementById('scGram').innerText = ev.grammar;
