@@ -127,17 +127,37 @@
           <select id="missionSelect" onchange="onMissionChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"></select>
         </div>
       </div>
-      <div id="missionStageBar" class="bg-white px-4 py-3 rounded-xl shadow-sm border border-slate-200">
-        <div class="flex items-center justify-between gap-2 mb-2">
-          <span class="text-xs font-bold text-slate-600">รายการภารกิจในพื้นที่นี้</span>
+
+      <div id="missionStageBar" class="bg-white px-4 py-3 rounded-xl shadow-sm border border-slate-200 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-bold text-slate-600">รายการภารกิจและตารางสรุปคะแนนในพื้นที่นี้</span>
           <div class="flex items-center gap-2">
             <span id="missionStageCount" class="text-[11px] font-semibold text-slate-500"></span>
-            <button type="button" id="btnRestartMission" onclick="resetMissionProgressOnClient()" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg font-bold transition">🔄 เริ่มภารกิจใหม่</button>
+            <button type="button" id="btnRestartMission" onclick="resetMissionProgressOnClient()" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-3 py-1 rounded-lg font-bold transition">
+              🔄 ทำภารกิจนี้ใหม่
+            </button>
           </div>
         </div>
         <div id="missionStagePills" class="flex flex-wrap gap-2"></div>
+        <div class="overflow-x-auto border border-slate-200 rounded-lg">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead>
+              <tr class="bg-[#141e30] text-white">
+                <th class="p-2 font-semibold">ภารกิจ 1</th>
+                <th class="p-2 font-semibold text-center">ภารกิจ 2</th>
+                <th class="p-2 font-semibold text-center">ภารกิจ 3</th>
+                <th class="p-2 font-semibold text-center">ภารกิจ 4</th>
+                <th class="p-2 font-semibold text-center">ภารกิจ 5</th>
+                <th class="p-2 font-semibold text-center">คะแนนรวม</th>
+              </tr>
+            </thead>
+            <tbody id="studentSummaryTableBody" class="divide-y divide-slate-100 bg-slate-50/50"></tbody>
+          </table>
+        </div>
       </div>
+
       <div id="chatBox" class="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 p-4 overflow-y-auto space-y-4 min-h-[320px] max-h-[55vh]"></div>
+
       <div id="scoreCard" class="hidden bg-emerald-50 border-2 border-emerald-400 rounded-xl p-4 shadow">
         <div class="flex justify-between items-center mb-2">
           <h3 class="font-bold text-emerald-900">🎉 ภารกิจสำเร็จ! ผลการประเมิน</h3>
@@ -152,9 +172,10 @@
         <p id="teacherFeedback" class="text-sm text-emerald-900 bg-white p-2.5 rounded border"></p>
         <div class="flex justify-between items-center mt-3">
           <span class="text-xs text-emerald-700 font-semibold">✅ บันทึกคะแนนลงชีตโรงเรียนเรียบร้อยแล้ว</span>
-          <button type="button" onclick="resetMissionProgressOnClient()" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-semibold">เริ่มภารกิจนี้ใหม่ตั้งแต่ต้น</button>
+          <button type="button" onclick="resetMissionProgressOnClient()" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-semibold">🔄 ทำภารกิจนี้ใหม่</button>
         </div>
       </div>
+
       <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex items-center gap-2">
         <button id="micBtn" onclick="toggleMic()" title="กดเพื่อเปิดไมค์ และกดอีกครั้งเพื่อปิดไมค์" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2.5 rounded-full flex-shrink-0 text-xs font-bold flex items-center gap-1">
           <span id="micIcon">🎤</span><span id="micLabel">พูด</span>
@@ -164,6 +185,7 @@
       </div>
     </main>
   </div>
+
   <!-- ==================== 3. DASHBOARD VIEW ==================== -->
   <div id="dashboardView" class="hidden flex-1 flex flex-col">
     <header class="bg-gradient-to-r from-[#141e30] to-[#243b55] text-white shadow-md">
@@ -268,6 +290,7 @@
       </div>
     </main>
   </div>
+
   <script>
     const GAS_API_URL = '[https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec](https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec)';
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
@@ -488,6 +511,27 @@
       return baseTitle;
     }
 
+    function renderStudentSummaryTable(provId) {
+      const tbody = document.getElementById('studentSummaryTableBody');
+      if (!tbody) return;
+      const units = ['unit1', 'unit2', 'unit3', 'unit4', 'unit5'];
+      let total = 0;
+      const cells = units.map((uKey, idx) => {
+        const matched = currentProvinceMissions.find(m => String(m.unit_key || '').trim().toLowerCase() === uKey);
+        const info = matched ? getMissionScoreInfo(matched) : null;
+        if (info && info.done) {
+          total += Number(info.score) || 0;
+          return `<td class="p-2 text-center font-bold text-emerald-700 bg-emerald-50/70">${info.score}/10</td>`;
+        }
+        return `<td class="p-2 text-center text-slate-400">-</td>`;
+      });
+      tbody.innerHTML = `
+        <tr>
+          ${cells.join('')}
+          <td class="p-2 text-center font-bold text-[#1e3a8a] bg-blue-50/70">${total}</td>
+        </tr>`;
+    }
+
     function refreshMissionDropdownLabels(provId, selectedUnitKey) {
       const sel = document.getElementById('missionSelect');
       if (!sel) return;
@@ -501,6 +545,7 @@
         sel.value = currentProvinceMissions[0].unit_key;
       }
       renderMissionStagePills(sel.value);
+      renderStudentSummaryTable(provId);
     }
 
     function renderMissionStagePills(activeUnitKey) {
@@ -579,6 +624,7 @@
       const provId = document.getElementById('provinceSelect').value;
       const unitKey = document.getElementById('missionSelect').value;
       renderMissionStagePills(unitKey);
+      renderStudentSummaryTable(provId);
       document.getElementById('scoreCard').classList.add('hidden');
       document.getElementById('chatBox').innerHTML = '<div class="text-xs text-slate-400 text-center py-4">กำลังตรวจสอบความคืบหน้าเดิม...</div>';
       try {
@@ -627,7 +673,7 @@
       const unitKey = document.getElementById('missionSelect').value;
       if (!currentUser || !provId || !unitKey) return;
 
-      const ok = confirm('ยืนยันเริ่มภารกิจนี้ใหม่ตั้งแต่ต้นใช่หรือไม่? ระบบจะลบประวัติการสนทนาและคะแนนเดิมของภารกิจนี้ในชีตออก');
+      const ok = confirm('ยืนยันทำภารกิจนี้ใหม่ตั้งแต่ต้นใช่หรือไม่? ระบบจะลบคะแนนและประวัติการสนทนาเดิมของภารกิจนี้ออก');
       if (!ok) return;
 
       stopMicManually();
@@ -658,13 +704,13 @@
         micFinalText = '';
         refreshMissionDropdownLabels(provId, unitKey);
         restoreChatHistory([]);
-        alert('ลบสถิติเดิมและเริ่มภารกิจใหม่เรียบร้อยแล้ว สามารถสนทนาตั้งแต่ต้นได้เลยครับ');
+        alert('ลบคะแนนเดิมและเริ่มภารกิจใหม่เรียบร้อยแล้ว สามารถสนทนาตั้งแต่ต้นได้เลยครับ');
       } catch (err) {
         alert('เริ่มภารกิจใหม่ไม่สำเร็จ: ' + err.message);
       } finally {
         if (btn) {
           btn.disabled = false;
-          btn.innerText = '🔄 เริ่มภารกิจใหม่';
+          btn.innerText = '🔄 ทำภารกิจนี้ใหม่';
         }
       }
     }
@@ -1049,31 +1095,5 @@
       return String(str || '').replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
     }
   </script>
-  <script>
-(function() {
-  function injectRestartButton() {
-    if (document.getElementById('btnRestartMission')) return;
-    var countEl = document.getElementById('missionStageCount');
-    if (!countEl || !countEl.parentElement) return;
-
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.id = 'btnRestartMission';
-    btn.className = 'ml-2 text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg font-bold transition';
-    btn.innerText = '🔄 เริ่มภารกิจใหม่';
-    btn.onclick = function() {
-      if (typeof resetMissionProgressOnClient === 'function') {
-        resetMissionProgressOnClient();
-      } else {
-        alert('กรุณาเพิ่มฟังก์ชัน resetMissionProgressOnClient และ action resetMissionProgress ใน Code.gs ก่อนครับ');
-      }
-    };
-    countEl.parentElement.appendChild(btn);
-  }
-
-  window.addEventListener('DOMContentLoaded', injectRestartButton);
-  setInterval(injectRestartButton, 800);
-})();
-</script>
 </body>
 </html>
