@@ -1049,5 +1049,31 @@
       return String(str || '').replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
     }
   </script>
+  <script>
+(function() {
+  function injectRestartButton() {
+    if (document.getElementById('btnRestartMission')) return;
+    var countEl = document.getElementById('missionStageCount');
+    if (!countEl || !countEl.parentElement) return;
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'btnRestartMission';
+    btn.className = 'ml-2 text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-2.5 py-1 rounded-lg font-bold transition';
+    btn.innerText = '🔄 เริ่มภารกิจใหม่';
+    btn.onclick = function() {
+      if (typeof resetMissionProgressOnClient === 'function') {
+        resetMissionProgressOnClient();
+      } else {
+        alert('กรุณาเพิ่มฟังก์ชัน resetMissionProgressOnClient และ action resetMissionProgress ใน Code.gs ก่อนครับ');
+      }
+    };
+    countEl.parentElement.appendChild(btn);
+  }
+
+  window.addEventListener('DOMContentLoaded', injectRestartButton);
+  setInterval(injectRestartButton, 800);
+})();
+</script>
 </body>
 </html>
