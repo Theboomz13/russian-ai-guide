@@ -288,7 +288,6 @@
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec';
 
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
-    const MAX_MISSION_SCORE = 10;
 
     // รายชื่อจังหวัดในประเทศไทยทั้ง 77 จังหวัด เรียงตามพยัญชนะไทย
     const THAI_PROVINCES = [
@@ -313,7 +312,7 @@
     let currentUser = null;
     let allMissions = [];
     let allSchools = [];
-    let completedMissionScores = {}; // เก็บ { "provinceId|unitKey": score }
+    let completedMissionScores = {}; // เก็บ { "provinceId|unitKey": { done, score, maxScore } }
     let rawDashboardData = { students: [], scores: [], progress: [] };
     let chatHistory = [];
     let isRecording = false;
@@ -511,11 +510,14 @@
       }
     }
 
+    // รูปแบบข้อความหลังชื่อภารกิจ: "ชื่อภารกิจ ✅ ทำแล้ว (x/คะแนนเต็ม)"
     function formatMissionOptionLabel(mission) {
       const key = `${mission.province_id}|${mission.unit_key}`;
-      if (Object.prototype.hasOwnProperty.call(completedMissionScores, key)) {
-        const earned = Number(completedMissionScores[key]) || 0;
-        return `${mission.mission_title_th} ✅ ทำแล้ว (${earned}/${MAX_MISSION_SCORE})`;
+      const info = completedMissionScores[key];
+      if (info && info.done) {
+        const earned = Number(info.score) || 0;
+        const maxScore = Number(info.maxScore) || 10;
+        return `${mission.mission_title_th} ✅ ทำแล้ว (${earned}/${maxScore})`;
       }
       return mission.mission_title_th;
     }
@@ -524,9 +526,11 @@
       const banner = document.getElementById('missionStatusBanner');
       const txt = document.getElementById('missionStatusText');
       const key = `${provId}|${unitKey}`;
-      if (Object.prototype.hasOwnProperty.call(completedMissionScores, key)) {
-        const earned = Number(completedMissionScores[key]) || 0;
-        txt.innerText = `✅ ทำแล้ว (${earned}/${MAX_MISSION_SCORE}) — สามารถฝึกซ้ำเพื่อพัฒนาคะแนนให้ดียิ่งขึ้นได้ครับ`;
+      const info = completedMissionScores[key];
+      if (info && info.done) {
+        const earned = Number(info.score) || 0;
+        const maxScore = Number(info.maxScore) || 10;
+        txt.innerText = `✅ ทำแล้ว (${earned}/${maxScore}) — เลือกฝึกซ้ำเพื่อพัฒนาคะแนนได้ครับ`;
         banner.classList.remove('hidden');
       } else {
         banner.classList.add('hidden');
@@ -536,7 +540,7 @@
     function populateMissionDropdown(provId) {
       const list = allMissions.filter(m => m.province_id === provId);
       document.getElementById('missionSelect').innerHTML = list
-        .map(m => `<option value="${m.unit_key}">${escapeHtml(formatMissionOptionLabel(m))}</option>`).join('');
+        .map(m => `<option value="${escapeHtml(m.unit_key)}">${escapeHtml(formatMissionOptionLabel(m))}</option>`).join('');
     }
 
     function onProvinceChange() {
@@ -695,15 +699,11 @@
 
         if (res.completedMissionScores) {
           completedMissionScores = res.completedMissionScores;
-        }
-        if (ai.is_mission_complete && ai.evaluation) {
-          const mKey = `${provId}|${unitKey}`;
-          const prevBest = Number(completedMissionScores[mKey]) || 0;
-          const newScore = Number(ai.evaluation.total_score) || 0;
-          completedMissionScores[mKey] = Math.max(prevBest, newScore);
           populateMissionDropdown(provId);
           document.getElementById('missionSelect').value = unitKey;
           updateMissionStatusBanner(provId, unitKey);
+        }
+        if (ai.is_mission_complete && ai.evaluation) {
           showScoreCard(ai.evaluation);
         }
       } catch (err) {
@@ -747,7 +747,7 @@
 
     function showScoreCard(ev) {
       document.getElementById('scoreCard').classList.remove('hidden');
-      document.getElementById('totalScoreBadge').innerText = `${ev.total_score} / ${MAX_MISSION_SCORE} คะแนน`;
+      document.getElementById('totalScoreBadge').innerText = `${ev.total_score} / 10 คะแนน`;
       document.getElementById('scTask').innerText = ev.task_completion;
       document.getElementById('scVocab').innerText = ev.vocabulary;
       document.getElementById('scGram').innerText = ev.grammar;
