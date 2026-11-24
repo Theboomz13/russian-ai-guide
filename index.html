@@ -131,7 +131,7 @@
 
       <div id="missionStageBar" class="bg-white px-4 py-3 rounded-xl shadow-sm border border-slate-200 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
-          <span class="text-xs font-bold text-slate-600">รายการภารกิจและตารางสรุปคะแนนในพื้นที่นี้</span>
+          <span class="text-xs font-bold text-slate-600">รายการภารกิจและตารางสรุปคะแนนในพื้นที่นี้ (เสียงผู้ชาย: Алексей)</span>
           <div class="flex items-center gap-2">
             <span id="missionStageCount" class="text-[11px] font-semibold text-slate-500"></span>
             <button type="button" id="btnRestartMission" onclick="resetMissionProgressOnClient()" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 px-3 py-1 rounded-lg font-bold transition">
@@ -328,6 +328,36 @@
     let currentProvinceMissions = [];
     let micBaseText = '';
     let micFinalText = '';
+    let availableVoices = [];
+
+    function loadSpeechVoices() {
+      if (!('speechSynthesis' in window)) return [];
+      availableVoices = window.speechSynthesis.getVoices() || [];
+      return availableVoices;
+    }
+
+    function selectMaleRussianVoice() {
+      const voices = loadSpeechVoices();
+      const ruVoices = voices.filter(v => String(v.lang || '').toLowerCase().startsWith('ru'));
+      if (ruVoices.length === 0) return null;
+
+      const maleKeywords = ['male', 'pavel', 'dmitry', 'maksim', 'maxim', 'ivan', 'boris', 'sergey', 'yuri', 'alexey', 'русский'];
+      const femaleKeywords = ['female', 'irina', 'svetlana', 'elena', 'milena', 'natasha', 'maria', 'anna', 'olga', 'tatiana', 'yulia'];
+
+      for (let i = 0; i < ruVoices.length; i++) {
+        const nameLower = String(ruVoices[i].name || '').toLowerCase();
+        if (maleKeywords.some(k => nameLower.includes(k))) {
+          return ruVoices[i];
+        }
+      }
+
+      const nonFemaleRu = ruVoices.find(v => {
+        const nameLower = String(v.name || '').toLowerCase();
+        return !femaleKeywords.some(k => nameLower.includes(k));
+      });
+
+      return nonFemaleRu || ruVoices[0];
+    }
 
     async function callApi(action, payload = {}) {
       const res = await fetch(GAS_API_URL, {
@@ -342,6 +372,12 @@
 
     window.onload = async () => {
       setupSpeechRecognition();
+      loadSpeechVoices();
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+          loadSpeechVoices();
+        };
+      }
       populateProvinceDropdown();
       try {
         const data = await callApi('getInitialData');
@@ -482,6 +518,9 @@
 
     function logout() {
       stopMicManually();
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
       currentUser = null;
       completedMissionScores = {};
       chatHistory = [];
@@ -654,7 +693,7 @@
       box.innerHTML = '';
       if (chatHistory.length === 0) {
         box.innerHTML = `<div class="bg-blue-50 text-blue-900 p-3 rounded-lg text-sm">
-          👋 <b>เริ่มภารกิจนี้:</b> กดปุ่ม <b>🎤 พูด</b> เพื่อเปิดไมค์พูดภาษารัสเซีย (กดอีกครั้งเพื่อปิดไมค์เอง) หรือพิมพ์ทักทายอเล็กเซย์ได้เลย เช่น <i>"Здравствуйте!"</i>
+          👋 <b>เริ่มภารกิจนี้:</b> กดปุ่ม <b>🎤 พูด</b> เพื่อเปิดไมค์พูดภาษารัสเซีย (กดอีกครั้งเพื่อปิดไมค์เอง) หรือพิมพ์ทักทายอเล็กเซย์ (เสียงผู้ชาย) ได้เลย เช่น <i>"Здравствуйте!"</i>
         </div>`;
         return;
       }
@@ -836,9 +875,19 @@
     }
 
     function speakRussian(text) {
+      if (!('speechSynthesis' in window) || !text) return;
       window.speechSynthesis.cancel();
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = 'ru-RU'; utter.rate = 0.85;
+      const utter = new SpeechSynthesisUtterance(String(text));
+      const maleVoice = selectMaleRussianVoice();
+      if (maleVoice) {
+        utter.voice = maleVoice;
+        utter.lang = maleVoice.lang || 'ru-RU';
+        utter.pitch = 0.92;
+      } else {
+        utter.lang = 'ru-RU';
+        utter.pitch = 0.80;
+      }
+      utter.rate = 0.85;
       window.speechSynthesis.speak(utter);
     }
 
@@ -911,7 +960,7 @@
         <div class="bg-slate-100 border text-slate-800 p-3 rounded-2xl rounded-bl-none max-w-[85%] space-y-1.5">
           <div class="flex items-start justify-between gap-2">
             <p class="font-semibold text-base text-[#141e30]">${escapeHtml(ai.reply_ru)}</p>
-            <button onclick="speakRussian('${safeRu}')" class="text-lg">🔊</button>
+            <button onclick="speakRussian('${safeRu}')" title="ฟังเสียงผู้ชาย" class="text-lg">🔊</button>
           </div>
           <div>
             <button onclick="document.getElementById('${id}').classList.toggle('hidden')" class="text-xs text-[#1e3a8a] underline">ดู/ซ่อน คำแปลไทย</button>
