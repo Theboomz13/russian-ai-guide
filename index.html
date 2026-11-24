@@ -285,7 +285,6 @@
 
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
 
-    // รายชื่อจังหวัดในประเทศไทยทั้ง 77 จังหวัด เรียงตามพยัญชนะไทย
     const THAI_PROVINCES = [
       'กระบี่', 'กรุงเทพมหานคร', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร',
       'ขอนแก่น', 'จันทบุรี', 'ฉะเชิงเทรา', 'ชลบุรี', 'ชัยนาท',
@@ -308,7 +307,7 @@
     let currentUser = null;
     let allMissions = [];
     let allSchools = [];
-    let completedMissionScores = {}; // เก็บ { "provinceId|unitKey": { done, score, maxScore } }
+    let completedMissionScores = {}; // เก็บ { "provinceid|unitkey": { done, score, maxScore } }
     let rawDashboardData = { students: [], scores: [], progress: [] };
     let chatHistory = [];
     let isRecording = false;
@@ -459,7 +458,7 @@
         currentUser = res.user;
         allSchools = res.schools || [];
         allMissions = res.missions || [];
-        completedMissionScores = res.completedMissionScores || {};
+        completedMissionScores = normalizeScoreMapClient(res.completedMissionScores || {});
 
         document.getElementById('authView').classList.add('hidden');
         const role = currentUser.role.toLowerCase();
@@ -483,6 +482,53 @@
     }
 
     // ==================== STUDENT VIEW ====================
+    function normalizeScoreMapClient(rawMap) {
+      const out = {};
+      if (!rawMap || typeof rawMap !== 'object') return out;
+      for (const [k, v] of Object.entries(rawMap)) {
+        if (!v) continue;
+        const parts = String(k).split('|');
+        const p = String(parts[0] || '').trim().toLowerCase();
+        const u = String(parts[1] || '').trim().toLowerCase();
+        const normKey = `${p}|${u}`;
+        const prev = out[normKey];
+        const scoreVal = Number(v.score) || 0;
+        const maxVal = Number(v.maxScore) || 10;
+        out[normKey] = {
+          done: Boolean(v.done) || scoreVal > 0,
+          score: prev ? Math.max(prev.score, scoreVal) : scoreVal,
+          maxScore: maxVal
+        };
+      }
+      return out;
+    }
+
+    function findMissionScoreInfo(mission) {
+      const pId = String(mission.province_id || '').trim().toLowerCase();
+      const uKey = String(mission.unit_key || '').trim().toLowerCase();
+      const exactKey = `${pId}|${uKey}`;
+      if (completedMissionScores[exactKey]) return completedMissionScores[exactKey];
+
+      for (const k of Object.keys(completedMissionScores)) {
+        const parts = k.split('|');
+        const kp = String(parts[0] || '').trim().toLowerCase();
+        const ku = String(parts[1] || '').trim().toLowerCase();
+        if (kp === pId && ku === uKey) return completedMissionScores[k];
+      }
+      return null;
+    }
+
+    // รูปแบบข้อความหลังชื่อภารกิจใน Dropdown: "ชื่อภารกิจ ✅ ทำแล้ว (x/คะแนนเต็ม)"
+    function formatMissionOptionLabel(mission) {
+      const info = findMissionScoreInfo(mission);
+      if (info && info.done) {
+        const earned = Number(info.score) || 0;
+        const maxScore = Number(info.maxScore) || 10;
+        return `${mission.mission_title_th} ✅ ทำแล้ว (${earned}/${maxScore})`;
+      }
+      return mission.mission_title_th;
+    }
+
     function initStudentView(lastProgress) {
       document.getElementById('studentView').classList.remove('hidden');
       document.getElementById('stName').innerText = currentUser.fullName;
@@ -490,10 +536,13 @@
       if (currentUser.avatarUrl) document.getElementById('stAvatar').src = currentUser.avatarUrl;
 
       const provMap = new Map();
-      allMissions.forEach(m => { if (!provMap.has(m.province_id)) provMap.set(m.province_id, m.province_th); });
+      allMissions.forEach(m => {
+        const pid = String(m.province_id || '').trim();
+        if (pid && !provMap.has(pid)) provMap.set(pid, m.province_th);
+      });
       const provSel = document.getElementById('provinceSelect');
       provSel.innerHTML = Array.from(provMap.entries())
-        .map(([id, name]) => `<option value="${id}">${escapeHtml(name)}</option>`).join('');
+        .map(([id, name]) => `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`).join('');
 
       if (lastProgress && provMap.has(lastProgress.provinceId)) {
         provSel.value = lastProgress.provinceId;
@@ -505,20 +554,8 @@
       }
     }
 
-    // รูปแบบข้อความหลังชื่อภารกิจ: "ชื่อภารกิจ ✅ ทำแล้ว (x/คะแนนเต็ม)"
-    function formatMissionOptionLabel(mission) {
-      const key = `${mission.province_id}|${mission.unit_key}`;
-      const info = completedMissionScores[key];
-      if (info && info.done) {
-        const earned = Number(info.score) || 0;
-        const maxScore = Number(info.maxScore) || 10;
-        return `${mission.mission_title_th} ✅ ทำแล้ว (${earned}/${maxScore})`;
-      }
-      return mission.mission_title_th;
-    }
-
     function populateMissionDropdown(provId) {
-      const list = allMissions.filter(m => m.province_id === provId);
+      const list = allMissions.filter(m => String(m.province_id).trim().toLowerCase() === String(provId).trim().toLowerCase());
       document.getElementById('missionSelect').innerHTML = list
         .map(m => `<option value="${escapeHtml(m.unit_key)}">${escapeHtml(formatMissionOptionLabel(m))}</option>`).join('');
     }
@@ -542,10 +579,10 @@
           schoolName: currentUser.schoolName
         });
         if (res && res.completedMissionScores) {
-          completedMissionScores = res.completedMissionScores;
+          completedMissionScores = normalizeScoreMapClient(res.completedMissionScores);
           populateMissionDropdown(provId);
           document.getElementById('missionSelect').value = unitKey;
-            }
+        }
         restoreChatHistory(res && res.chatHistory ? res.chatHistory : []);
       } catch (err) {
         restoreChatHistory([]);
@@ -676,10 +713,10 @@
         speakRussian(ai.reply_ru);
 
         if (res.completedMissionScores) {
-          completedMissionScores = res.completedMissionScores;
+          completedMissionScores = normalizeScoreMapClient(res.completedMissionScores);
           populateMissionDropdown(provId);
           document.getElementById('missionSelect').value = unitKey;
-            }
+        }
         if (ai.is_mission_complete && ai.evaluation) {
           showScoreCard(ai.evaluation);
         }
