@@ -16,7 +16,6 @@
   </style>
 </head>
 <body class="bg-[#f4f6fa] min-h-screen flex flex-col text-slate-800">
-
   <!-- ==================== 1. AUTH VIEW ==================== -->
   <div id="authView" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-[#182848] to-[#243b55]">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
@@ -25,12 +24,10 @@
         <h1 class="text-xl font-bold tracking-wide">ยุวมัคคุเทศก์ไทย AI</h1>
         <p class="text-xs text-slate-200 mt-1">แพลตฟอร์มฝึกสนทนาภาษารัสเซียระดับ A1 ฐานบริบทท้องถิ่น</p>
       </div>
-
       <div class="flex border-b bg-slate-50">
         <button id="tabLogin" onclick="switchAuthTab('login')" class="flex-1 py-3 text-sm font-bold text-[#1e3a8a] border-b-2 border-[#1e3a8a] bg-white">เข้าสู่ระบบ</button>
         <button id="tabReg" onclick="switchAuthTab('register')" class="flex-1 py-3 text-sm font-semibold text-slate-500 hover:text-[#1e3a8a]">สมัครสมาชิกใหม่</button>
       </div>
-
       <!-- Login Form -->
       <div id="loginForm" class="p-6 space-y-4">
         <div>
@@ -43,7 +40,6 @@
         </div>
         <button id="btnLogin" onclick="doLogin()" class="w-full bg-[#1e3a8a] hover:bg-[#172554] text-white py-2.5 rounded-lg font-bold text-sm shadow transition">เข้าสู่ระบบ</button>
       </div>
-
       <!-- Register Form -->
       <div id="registerForm" class="hidden p-6 space-y-3">
         <div>
@@ -77,7 +73,6 @@
             </select>
           </div>
         </div>
-
         <div id="studentSchoolBox">
           <label class="text-xs font-bold text-slate-600">เลือกโรงเรียน</label>
           <select id="regSchoolSelect" class="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
@@ -85,29 +80,24 @@
           </select>
           <p class="text-[11px] text-amber-600 mt-1">* หากยังไม่มีชื่อโรงเรียน ให้ครูผู้สอนสมัครสถานะ Teacher ก่อน</p>
         </div>
-
         <div id="teacherSchoolBox" class="hidden">
           <label class="text-xs font-bold text-slate-600">ชื่อโรงเรียน (ระบบจะสร้างชีตคะแนนให้อัตโนมัติ)</label>
           <input id="regSchoolInput" type="text" placeholder="เช่น โรงเรียนกมลาไสย" class="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg text-sm">
         </div>
-
         <div id="schoolProvinceBox">
           <label class="text-xs font-bold text-slate-600">จังหวัดที่ตั้งของโรงเรียน</label>
           <select id="regSchoolProvince" class="w-full mt-1 px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white">
             <option value="">-- เลือกจังหวัดที่ตั้งโรงเรียน --</option>
           </select>
         </div>
-
         <div id="avatarUploadBox">
           <label class="text-xs font-bold text-slate-600">รูปประจำตัว (บันทึกเป็น ชื่อ-โรงเรียน)</label>
           <input id="regAvatar" type="file" accept="image/*" class="w-full mt-1 text-xs border border-slate-300 rounded-lg p-1.5 bg-slate-50">
         </div>
-
         <button id="btnRegister" onclick="doRegister()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg font-bold text-sm shadow transition">สมัครสมาชิก</button>
       </div>
     </div>
   </div>
-
   <!-- ==================== 2. STUDENT VIEW ==================== -->
   <div id="studentView" class="hidden flex-1 flex flex-col">
     <header class="bg-gradient-to-r from-[#141e30] to-[#243b55] text-white p-3.5 shadow">
@@ -126,7 +116,6 @@
         <button onclick="logout()" class="bg-white/15 hover:bg-rose-600 text-xs px-3 py-1.5 rounded-lg font-semibold transition">ออกจากระบบ</button>
       </div>
     </header>
-
     <main class="max-w-4xl w-full mx-auto flex-1 flex flex-col p-3 sm:p-4 gap-3">
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
@@ -138,7 +127,6 @@
           <select id="missionSelect" onchange="onMissionChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"></select>
         </div>
       </div>
-
       <div id="missionStageBar" class="bg-white px-4 py-3 rounded-xl shadow-sm border border-slate-200">
         <div class="flex items-center justify-between gap-2 mb-2">
           <span class="text-xs font-bold text-slate-600">รายการภารกิจในพื้นที่นี้</span>
@@ -146,9 +134,7 @@
         </div>
         <div id="missionStagePills" class="flex flex-wrap gap-2"></div>
       </div>
-
       <div id="chatBox" class="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 p-4 overflow-y-auto space-y-4 min-h-[320px] max-h-[55vh]"></div>
-
       <div id="scoreCard" class="hidden bg-emerald-50 border-2 border-emerald-400 rounded-xl p-4 shadow">
         <div class="flex justify-between items-center mb-2">
           <h3 class="font-bold text-emerald-900">🎉 ภารกิจสำเร็จ! ผลการประเมิน</h3>
@@ -166,15 +152,15 @@
           <button onclick="clearCurrentMissionChat()" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-semibold">ฝึกภารกิจนี้ใหม่อีกครั้ง</button>
         </div>
       </div>
-
       <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex items-center gap-2">
-        <button id="micBtn" onclick="toggleMic()" title="พูดภาษารัสเซีย" class="bg-rose-500 hover:bg-rose-600 text-white p-3 rounded-full flex-shrink-0">🎤</button>
+        <button id="micBtn" onclick="toggleMic()" title="กดเพื่อเปิดไมค์ และกดอีกครั้งเพื่อปิดไมค์" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2.5 rounded-full flex-shrink-0 text-xs font-bold flex items-center gap-1">
+          <span id="micIcon">🎤</span><span id="micLabel">พูด</span>
+        </button>
         <input id="userInput" type="text" placeholder="พิมพ์หรือกดไมค์พูดภาษารัสเซีย..." onkeypress="if(event.key==='Enter') sendMessage()" class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
         <button id="sendBtn" onclick="sendMessage()" class="bg-[#1e3a8a] hover:bg-[#172554] text-white px-4 py-2 rounded-lg text-sm font-bold">ส่ง</button>
       </div>
     </main>
   </div>
-
   <!-- ==================== 3. DASHBOARD VIEW ==================== -->
   <div id="dashboardView" class="hidden flex-1 flex flex-col">
     <header class="bg-gradient-to-r from-[#141e30] to-[#243b55] text-white shadow-md">
@@ -187,7 +173,6 @@
         <button onclick="logout()" class="bg-white/15 hover:bg-rose-600 border border-white/20 text-xs px-4 py-2 rounded-lg font-semibold transition">ออกจากระบบ</button>
       </div>
     </header>
-
     <main class="max-w-6xl w-full mx-auto p-4 space-y-5">
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex items-center gap-3">
@@ -219,19 +204,16 @@
           </div>
         </div>
       </div>
-
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-sm font-bold text-slate-800">🔍 ตัวกรองข้อมูลผู้เรียน</h3>
           <button onclick="resetFilters()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold underline">ล้างตัวกรอง</button>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
           <div id="filterSchoolWrapper" class="hidden md:col-span-4">
             <label class="text-xs font-bold text-slate-500">🏫 โรงเรียน</label>
             <select id="filterSchool" onchange="onSchoolFilterChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"></select>
           </div>
-
           <div id="filterGenderWrapper" class="md:col-span-3">
             <label class="text-xs font-bold text-slate-500">👤 เพศ</label>
             <select id="filterGender" onchange="applyClientFilters()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
@@ -242,7 +224,6 @@
               <option value="ไม่ระบุ">ไม่ระบุ</option>
             </select>
           </div>
-
           <div id="filterSearchWrapper" class="md:col-span-5">
             <label class="text-xs font-bold text-slate-500">🔎 ค้นหาชื่อ หรือ นามสกุล (พิมพ์บางส่วนได้)</label>
             <input id="filterSearch" type="text" oninput="applyClientFilters()" placeholder="เช่น สมชาย, ใจดี หรือ Username..."
@@ -250,7 +231,6 @@
           </div>
         </div>
       </div>
-
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
         <div class="px-5 py-3.5 border-b border-slate-100 flex justify-between items-center bg-slate-50/70">
           <h3 id="currentSchoolHeading" class="font-bold text-slate-900 text-sm sm:text-base">📋 ตารางสรุปคะแนนนักเรียน</h3>
@@ -279,14 +259,12 @@
           </table>
         </div>
       </div>
-
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
         <h3 class="font-bold text-slate-800 text-sm mb-3">🕒 ความคืบหน้าล่าสุดของนักเรียน (กำลังฝึกสนทนาอยู่)</h3>
         <div id="progressListBox" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs"></div>
       </div>
     </main>
   </div>
-
   <script>
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec';
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
@@ -318,6 +296,8 @@
     let isRecording = false;
     let recognition = null;
     let currentProvinceMissions = [];
+    let micBaseText = '';
+    let micFinalText = '';
 
     async function callApi(action, payload = {}) {
       const res = await fetch(GAS_API_URL, {
@@ -401,7 +381,6 @@
         ? document.getElementById('regSchoolInput').value.trim()
         : document.getElementById('regSchoolSelect').value.trim();
       const schoolProvince = document.getElementById('regSchoolProvince').value.trim();
-
       if (!schoolName) {
         alert(role === 'Teacher' ? 'กรุณากรอกชื่อโรงเรียนครับ' : 'กรุณาเลือกโรงเรียน (หากยังไม่มี ให้ครูสมัครสถานะ Teacher ก่อน)');
         return;
@@ -410,7 +389,6 @@
         alert('กรุณาเลือกจังหวัดที่ตั้งของโรงเรียนครับ');
         return;
       }
-
       const form = {
         role,
         username: document.getElementById('regUser').value.trim(),
@@ -422,10 +400,8 @@
         avatarBase64: '',
         avatarMime: ''
       };
-
       const btn = document.getElementById('btnRegister');
       btn.disabled = true; btn.innerText = 'กำลังบันทึกข้อมูล...';
-
       const fileInput = document.getElementById('regAvatar');
       if (role === 'Student' && fileInput.files.length > 0) {
         resizeImageToBase64(fileInput.files[0], 400, (base64, mime) => {
@@ -457,17 +433,14 @@
       const p = document.getElementById('loginPass').value.trim();
       const btn = document.getElementById('btnLogin');
       btn.disabled = true; btn.innerText = 'กำลังเข้าสู่ระบบ...';
-
       try {
         const res = await callApi('loginUser', { username: u, password: p });
         currentUser = res.user;
         allSchools = res.schools || [];
         allMissions = res.missions || [];
         completedMissionScores = res.completedMissionScores || {};
-
         document.getElementById('authView').classList.add('hidden');
         const role = currentUser.role.toLowerCase();
-
         if (role === 'student') initStudentView(res.lastProgress);
         else initDashboardView(role);
       } catch (err) {
@@ -478,6 +451,7 @@
     }
 
     function logout() {
+      stopMicManually();
       currentUser = null;
       completedMissionScores = {};
       chatHistory = [];
@@ -491,7 +465,6 @@
       const pId = String(mission.province_id || '').trim().toLowerCase();
       const uKey = String(mission.unit_key || '').trim().toLowerCase();
       if (!pId || !uKey) return null;
-
       const entry = completedMissionScores[`${pId}|${uKey}`];
       if (entry && entry.done) {
         return {
@@ -531,7 +504,6 @@
       const container = document.getElementById('missionStagePills');
       const countEl = document.getElementById('missionStageCount');
       if (!container) return;
-
       let doneCount = 0;
       container.innerHTML = currentProvinceMissions.map((m, idx) => {
         const info = getMissionScoreInfo(m);
@@ -539,21 +511,17 @@
         if (isDone) doneCount++;
         const isSelected = String(m.unit_key).toLowerCase() === String(activeUnitKey).toLowerCase();
         const label = m.mission_title_th || `ด่านที่ ${idx + 1}`;
-
         const badge = isDone
           ? `<span class="ml-1.5 px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">✓ ${info.score}/${info.maxScore || 10}</span>`
           : `<span class="ml-1.5 px-1.5 py-0.5 rounded bg-slate-200 text-slate-600 text-[10px] font-semibold">ยังไม่ทำ</span>`;
-
         const ring = isSelected ? 'ring-2 ring-[#1e3a8a] border-[#1e3a8a]' : 'border-slate-200';
         const bg = isDone ? 'bg-emerald-50 text-emerald-950' : 'bg-slate-50 text-slate-700 hover:bg-slate-100';
-
         return `
           <button type="button" onclick="selectMissionFromPill('${escapeHtml(m.unit_key)}')"
             class="px-3 py-1.5 rounded-lg border text-xs font-semibold transition flex items-center ${bg} ${ring}">
             <span>${escapeHtml(label)}</span>${badge}
           </button>`;
       }).join('');
-
       if (countEl) {
         countEl.textContent = `ผ่านแล้ว ${doneCount}/${currentProvinceMissions.length} ภารกิจ`;
       }
@@ -574,7 +542,6 @@
       document.getElementById('stName').innerText = currentUser.fullName;
       document.getElementById('stSchool').innerText = currentUser.schoolName + (currentUser.schoolProvince ? ` (${currentUser.schoolProvince})` : '');
       if (currentUser.avatarUrl) document.getElementById('stAvatar').src = currentUser.avatarUrl;
-
       const provMap = new Map();
       allMissions.forEach(m => {
         const pid = String(m.province_id || '').trim();
@@ -583,7 +550,6 @@
       const provSel = document.getElementById('provinceSelect');
       provSel.innerHTML = Array.from(provMap.entries())
         .map(([id, name]) => `<option value="${escapeHtml(id)}">${escapeHtml(name)}</option>`).join('');
-
       if (lastProgress && provMap.has(lastProgress.provinceId)) {
         provSel.value = lastProgress.provinceId;
         populateMissionSelect(lastProgress.provinceId, lastProgress.unitKey);
@@ -612,7 +578,6 @@
       renderMissionStagePills(unitKey);
       document.getElementById('scoreCard').classList.add('hidden');
       document.getElementById('chatBox').innerHTML = '<div class="text-xs text-slate-400 text-center py-4">กำลังตรวจสอบความคืบหน้าเดิม...</div>';
-
       try {
         const res = await callApi('loadSpecificProgress', {
           username: currentUser.username,
@@ -636,11 +601,10 @@
       box.innerHTML = '';
       if (chatHistory.length === 0) {
         box.innerHTML = `<div class="bg-blue-50 text-blue-900 p-3 rounded-lg text-sm">
-          👋 <b>เริ่มภารกิจนี้:</b> กดปุ่ม <b>🎤 พูดภาษารัสเซีย</b> หรือพิมพ์ทักทายอเล็กเซย์ได้เลย เช่น <i>"Здравствуйте!"</i>
+          👋 <b>เริ่มภารกิจนี้:</b> กดปุ่ม <b>🎤 พูด</b> เพื่อเปิดไมค์พูดภาษารัสเซีย (กดอีกครั้งเพื่อปิดไมค์เอง) หรือพิมพ์ทักทายอเล็กเซย์ได้เลย เช่น <i>"Здравствуйте!"</i>
         </div>`;
         return;
       }
-
       chatHistory.forEach(item => {
         if (item.role === 'user') appendUserBubble(item.parts[0].text);
         else {
@@ -676,37 +640,93 @@
       });
     }
 
+    function updateMicUi(recording) {
+      const btn = document.getElementById('micBtn');
+      const icon = document.getElementById('micIcon');
+      const label = document.getElementById('micLabel');
+      const input = document.getElementById('userInput');
+      if (recording) {
+        btn.classList.add('pulse-mic', 'bg-red-600');
+        btn.classList.remove('bg-rose-500');
+        if (icon) icon.innerText = '⏹';
+        if (label) label.innerText = 'หยุด';
+        if (input) input.placeholder = '🔴 กำลังฟังต่อเนื่อง... พูดจบแล้วกด "หยุด" ที่ปุ่มไมค์เองได้เลยครับ';
+      } else {
+        btn.classList.remove('pulse-mic', 'bg-red-600');
+        btn.classList.add('bg-rose-500');
+        if (icon) icon.innerText = '🎤';
+        if (label) label.innerText = 'พูด';
+        if (input) input.placeholder = 'พิมพ์หรือกดไมค์พูดภาษารัสเซีย...';
+      }
+    }
+
     function setupSpeechRecognition() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) return;
       recognition = new SR();
       recognition.lang = 'ru-RU';
-      recognition.interimResults = false;
+      recognition.continuous = true;
+      recognition.interimResults = true;
 
       recognition.onstart = () => {
         isRecording = true;
-        document.getElementById('micBtn').classList.add('pulse-mic', 'bg-red-600');
-        document.getElementById('userInput').placeholder = '🔴 กำลังฟังภาษารัสเซีย... พูดได้เลยครับ';
+        updateMicUi(true);
       };
 
       recognition.onresult = (e) => {
-        document.getElementById('userInput').value = e.results[0][0].transcript;
+        let interim = '';
+        let addedFinal = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const transcript = (e.results[i][0] && e.results[i][0].transcript) ? e.results[i][0].transcript : '';
+          if (e.results[i].isFinal) {
+            addedFinal += transcript + ' ';
+          } else {
+            interim += transcript;
+          }
+        }
+        if (addedFinal) {
+          micFinalText += addedFinal;
+        }
+        const inputEl = document.getElementById('userInput');
+        if (inputEl) {
+          inputEl.value = `${micBaseText} ${micFinalText} ${interim}`.replace(/\s+/g, ' ').trim();
+        }
       };
 
       recognition.onend = () => {
-        isRecording = false;
-        document.getElementById('micBtn').classList.remove('pulse-mic', 'bg-red-600');
-        document.getElementById('userInput').placeholder = 'พิมพ์หรือกดไมค์พูดภาษารัสเซีย...';
+        // เปิดค้างต่ออัตโนมัติจนกว่าผู้ใช้จะกดปุ่มหยุดไมค์เอง
+        if (isRecording) {
+          try {
+            recognition.start();
+          } catch (err) {
+            isRecording = false;
+            updateMicUi(false);
+          }
+        } else {
+          updateMicUi(false);
+        }
       };
 
       recognition.onerror = (e) => {
-        isRecording = false;
-        document.getElementById('micBtn').classList.remove('pulse-mic', 'bg-red-600');
-        document.getElementById('userInput').placeholder = 'พิมพ์หรือกดไมค์พูดภาษารัสเซีย...';
-        if (e.error !== 'no-speech') {
+        if (e && e.error === 'no-speech' && isRecording) {
+          return;
+        }
+        if (e && (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture')) {
+          isRecording = false;
+          updateMicUi(false);
           alert(`⚠️ ไมโครโฟนแจ้งเตือน (${e.error}): กรุณาตรวจสอบสิทธิ์ไมโครโฟนในเบราว์เซอร์ครับ`);
         }
       };
+    }
+
+    function stopMicManually() {
+      isRecording = false;
+      updateMicUi(false);
+      if (recognition) {
+        try {
+          recognition.stop();
+        } catch (err) {}
+      }
     }
 
     function toggleMic() {
@@ -714,8 +734,21 @@
         alert('⚠️ เบราว์เซอร์นี้ไม่รองรับการรับเสียง กรุณาเปิดผ่าน Google Chrome ครับ');
         return;
       }
-      if (isRecording) recognition.stop();
-      else recognition.start();
+      if (isRecording) {
+        stopMicManually();
+      } else {
+        const inputEl = document.getElementById('userInput');
+        micBaseText = inputEl ? inputEl.value.trim() : '';
+        micFinalText = '';
+        isRecording = true;
+        updateMicUi(true);
+        try {
+          recognition.start();
+        } catch (err) {
+          isRecording = false;
+          updateMicUi(false);
+        }
+      }
     }
 
     function speakRussian(text) {
@@ -726,20 +759,21 @@
     }
 
     async function sendMessage() {
+      if (isRecording) {
+        stopMicManually();
+      }
       const inputEl = document.getElementById('userInput');
       const text = inputEl.value.trim();
       if (!text) return;
-
       appendUserBubble(text);
       inputEl.value = '';
+      micBaseText = '';
+      micFinalText = '';
       const sendBtn = document.getElementById('sendBtn');
       sendBtn.disabled = true; sendBtn.innerText = 'กำลังคิด...';
-
       chatHistory.push({ role: "user", parts: [{ text: text }] });
-
       const provId = document.getElementById('provinceSelect').value;
       const unitKey = document.getElementById('missionSelect').value;
-
       try {
         const res = await callApi('handleStudentMessage', {
           username: currentUser.username,
@@ -753,7 +787,6 @@
         chatHistory.push({ role: "model", parts: [{ text: JSON.stringify(ai) }] });
         appendAiBubble(ai);
         speakRussian(ai.reply_ru);
-
         if (res.completedMissionScores) {
           completedMissionScores = res.completedMissionScores;
         }
@@ -835,19 +868,16 @@
       document.getElementById('dashRoleBadge').innerText = info.badge;
       document.getElementById('dashTitle').innerText = info.title;
       document.getElementById('dashSubtitle').innerText = `ผู้ใช้งาน: ${currentUser.fullName} (${currentUser.username})`;
-
       const canViewAll = ALL_SCHOOL_ROLES.includes(role);
       const schoolWrap = document.getElementById('filterSchoolWrapper');
       const genderWrap = document.getElementById('filterGenderWrapper');
       const searchWrap = document.getElementById('filterSearchWrapper');
       const thSchool = document.getElementById('thSchool');
-
       if (canViewAll) {
         schoolWrap.classList.remove('hidden');
         thSchool.classList.remove('hidden');
         genderWrap.className = 'md:col-span-3';
         searchWrap.className = 'md:col-span-5';
-
         const sel = document.getElementById('filterSchool');
         sel.innerHTML = `<option value="ALL">🌐 ทุกโรงเรียนทั้งหมด (${allSchools.length} แห่ง)</option>` +
           allSchools.map(s => `<option value="${escapeHtml(s)}">🏫 ${escapeHtml(s)}</option>`).join('');
@@ -899,7 +929,6 @@
       const genderFilter = document.getElementById('filterGender').value;
       const searchText = document.getElementById('filterSearch').value.trim().toLowerCase();
       const showSchoolCol = ALL_SCHOOL_ROLES.includes(currentUser.role.toLowerCase());
-
       const matchFn = (item) => {
         const matchGender = (genderFilter === 'ALL') || (item.gender === genderFilter);
         const matchName = !searchText ||
@@ -907,11 +936,9 @@
           String(item.username || '').toLowerCase().includes(searchText);
         return matchGender && matchName;
       };
-
       const filteredStudents = (rawDashboardData.students || []).filter(matchFn);
       const filteredScores = (rawDashboardData.scores || []).filter(matchFn);
       const filteredProgress = (rawDashboardData.progress || []).filter(matchFn);
-
       document.getElementById('kpiStudents').innerText = `${filteredStudents.length} คน`;
       document.getElementById('kpiRecords').innerText = `${filteredScores.length} รายการ`;
       document.getElementById('kpiProgress').innerText = `${filteredProgress.length} รายการ`;
@@ -919,7 +946,6 @@
         ? (filteredScores.reduce((s, r) => s + (Number(r.total) || 0), 0) / filteredScores.length).toFixed(2)
         : '0.00';
       document.getElementById('kpiAvgScore').innerText = avg;
-
       const tbody = document.getElementById('scoreTableBody');
       if (filteredScores.length === 0) {
         tbody.innerHTML = `<tr><td colspan="${showSchoolCol ? 11 : 10}" class="p-8 text-center text-slate-400">ไม่พบข้อมูลคะแนนตามเงื่อนไขที่เลือก</td></tr>`;
@@ -950,7 +976,6 @@
           </tr>`;
         }).join('');
       }
-
       const progBox = document.getElementById('progressListBox');
       if (filteredProgress.length === 0) {
         progBox.innerHTML = '<div class="col-span-full text-center text-slate-400 py-4">ไม่พบประวัติความคืบหน้าตามเงื่อนไขที่เลือก</div>';
