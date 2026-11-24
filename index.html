@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ยุวมัคคุเทศก์ไทย AI</title>
+  <title>ยุวมัคคุเทศก์ไทย AI — v8.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -15,12 +15,13 @@
     }
   </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col text-slate-800">
+<body class="bg-slate-100 min-h-screen flex flex-col text-slate-800">
 
   <!-- ==================== 1. AUTH VIEW ==================== -->
-  <div id="authView" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-indigo-950 via-indigo-900 to-slate-900">
-    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-white/10">
-      <div class="bg-gradient-to-r from-indigo-800 to-blue-700 text-white p-6 text-center">
+  <div id="authView" class="flex-1 flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-indigo-950 to-blue-950">
+    <div class="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-200">
+      <div class="bg-gradient-to-r from-indigo-900 via-indigo-800 to-blue-700 text-white p-6 text-center">
+        <div class="inline-block text-[10px] font-bold tracking-widest uppercase bg-white/15 px-2.5 py-0.5 rounded-full mb-2">BUILD v8.0</div>
         <div class="text-3xl mb-1">🇷🇺 🇹🇭</div>
         <h1 class="text-xl font-bold tracking-wide">ยุวมัคคุเทศก์ไทย AI</h1>
         <p class="text-xs text-indigo-100 mt-1">แพลตฟอร์มฝึกสนทนาภาษารัสเซียระดับ A1 ฐานบริบทท้องถิ่น</p>
@@ -110,8 +111,8 @@
 
   <!-- ==================== 2. STUDENT VIEW ==================== -->
   <div id="studentView" class="hidden flex-1 flex flex-col">
-    <header class="bg-gradient-to-r from-indigo-900 to-blue-800 text-white p-3.5 shadow-md">
-      <div class="max-w-3xl mx-auto flex justify-between items-center">
+    <header class="bg-gradient-to-r from-slate-900 via-indigo-900 to-blue-800 text-white p-3.5 shadow-md">
+      <div class="max-w-4xl mx-auto flex justify-between items-center">
         <div class="flex items-center gap-3">
           <div class="relative group cursor-pointer" onclick="document.getElementById('changeAvatarInput').click()" title="คลิกเพื่อเปลี่ยนรูปประจำตัว">
             <img id="stAvatar" src="https://ui-avatars.com/api/?name=Student&background=6366f1&color=fff" class="w-11 h-11 rounded-full object-cover border-2 border-white shadow">
@@ -119,7 +120,10 @@
           </div>
           <input id="changeAvatarInput" type="file" accept="image/*" class="hidden" onchange="handleChangeAvatar(event)">
           <div>
-            <h2 id="stName" class="font-bold text-sm leading-tight">นักเรียน</h2>
+            <div class="flex items-center gap-2">
+              <h2 id="stName" class="font-bold text-sm leading-tight">นักเรียน</h2>
+              <span class="text-[10px] bg-white/15 text-indigo-100 px-2 py-0.5 rounded-full font-semibold">v8.0</span>
+            </div>
             <p id="stSchool" class="text-xs text-indigo-200">โรงเรียน</p>
           </div>
         </div>
@@ -127,31 +131,37 @@
       </div>
     </header>
 
-    <main class="max-w-3xl w-full mx-auto flex-1 flex flex-col p-3 gap-3">
-      <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="text-xs font-bold text-slate-500">1. เลือกพื้นที่ / จังหวัด</label>
-            <select id="provinceSelect" onchange="onProvinceChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white"></select>
-          </div>
-          <div>
-            <label class="text-xs font-bold text-slate-500">2. เลือกภารกิจ</label>
-            <select id="missionSelect" onchange="onMissionChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white"></select>
-          </div>
+    <main class="max-w-4xl w-full mx-auto flex-1 flex flex-col p-3 sm:p-4 gap-3.5">
+      <!-- การ์ดเลือกพื้นที่และภารกิจ -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div>
+          <label class="text-xs font-bold text-slate-600">1. เลือกพื้นที่ / จังหวัด</label>
+          <select id="provinceSelect" onchange="onProvinceChange()" class="w-full mt-1.5 px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none"></select>
         </div>
-
-        <!-- แถบป้ายสถานะด่านภารกิจที่ชัดเจนสำหรับนักเรียน -->
-        <div class="pt-2 border-t border-slate-100">
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-bold text-slate-600">สถานะด่านภารกิจของฉัน:</span>
-            <span id="missionSummaryCount" class="text-xs font-semibold text-indigo-700">ผ่านแล้ว 0 ด่าน</span>
-          </div>
-          <div id="missionStageChips" class="flex flex-wrap gap-2"></div>
+        <div>
+          <label class="text-xs font-bold text-slate-600">2. เลือกภารกิจ</label>
+          <select id="missionSelect" onchange="onMissionChange()" class="w-full mt-1.5 px-3.5 py-2.5 text-sm border border-slate-300 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none"></select>
         </div>
       </div>
 
-      <div id="chatBox" class="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-y-auto space-y-4 min-h-[340px] max-h-[55vh]"></div>
+      <!-- แผงสถานะด่านภารกิจของนักเรียน -->
+      <section class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span>
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800">ความคืบหน้าด่านภารกิจในพื้นที่ที่เลือก</h3>
+          </div>
+          <span id="missionProgressSummary" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+            ทำแล้ว 0 / 0 ด่าน
+          </span>
+        </div>
+        <div id="missionTrackerGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5"></div>
+      </section>
 
+      <!-- กล่องสนทนา -->
+      <div id="chatBox" class="flex-1 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-y-auto space-y-4 min-h-[320px] max-h-[52vh]"></div>
+
+      <!-- การ์ดคะแนนเมื่อผ่านภารกิจ -->
       <div id="scoreCard" class="hidden bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-4 shadow-sm">
         <div class="flex justify-between items-center mb-2">
           <h3 class="font-bold text-emerald-900">🎉 ภารกิจสำเร็จ! ผลการประเมิน</h3>
@@ -166,10 +176,11 @@
         <p id="teacherFeedback" class="text-sm text-emerald-900 bg-white p-2.5 rounded-xl border"></p>
         <div class="flex justify-between items-center mt-3">
           <span class="text-xs text-emerald-700 font-semibold">✅ บันทึกคะแนนลงชีตโรงเรียนเรียบร้อยแล้ว</span>
-          <button onclick="clearCurrentMissionChat()" class="text-xs bg-emerald-700 text-white px-3.5 py-1.5 rounded-lg">ฝึกภารกิจนี้ใหม่อีกครั้ง</button>
+          <button onclick="clearCurrentMissionChat()" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-1.5 rounded-lg font-semibold">ฝึกภารกิจนี้ใหม่อีกครั้ง</button>
         </div>
       </div>
 
+      <!-- ช่องพิมพ์/พูด -->
       <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2">
         <button id="micBtn" onclick="toggleMic()" title="พูดภาษารัสเซีย" class="bg-rose-500 hover:bg-rose-600 text-white p-3 rounded-full flex-shrink-0 shadow-sm">🎤</button>
         <input id="userInput" type="text" placeholder="พิมพ์หรือกดไมค์พูดภาษารัสเซีย..." onkeypress="if(event.key==='Enter') sendMessage()" class="flex-1 px-3.5 py-2 text-sm border border-slate-300 rounded-xl outline-none focus:ring-2 focus:ring-indigo-500">
@@ -492,7 +503,7 @@
     }
 
     function getLocalScoreStorageKey(username) {
-      return `ru_guide_scores_${String(username || '').trim().toLowerCase()}`;
+      return `ru_guide_v8_scores_${String(username || '').trim().toLowerCase()}`;
     }
 
     function loadAndMergeScores(username, serverMap) {
@@ -580,37 +591,45 @@
       return null;
     }
 
-    function renderMissionStageChips(provId, activeUnitKey) {
-      const chipsBox = document.getElementById('missionStageChips');
-      const summaryEl = document.getElementById('missionSummaryCount');
-      if (!chipsBox) return;
+    function renderMissionTrackerGrid(provId, activeUnitKey) {
+      const grid = document.getElementById('missionTrackerGrid');
+      const summary = document.getElementById('missionProgressSummary');
+      if (!grid) return;
 
-      let doneCount = 0;
-      chipsBox.innerHTML = currentProvinceMissions.map((m, idx) => {
+      let completedCount = 0;
+      grid.innerHTML = currentProvinceMissions.map((m, idx) => {
         const info = findMissionScoreInfo(m);
         const isDone = Boolean(info && info.done);
-        if (isDone) doneCount++;
-        const isActive = String(m.unit_key) === String(activeUnitKey);
-        const stageNum = idx + 1;
-        const scoreText = isDone ? `✅ ผ่านแล้ว (${Number(info.score) || 0}/${Number(info.maxScore) || 10})` : '○ ยังไม่ทำ';
+        if (isDone) completedCount++;
+        const isCurrent = String(m.unit_key) === String(activeUnitKey);
+        const stageLabel = `ด่านที่ ${idx + 1}`;
+        const score = Number(info && info.score) || 0;
+        const maxScore = Number(info && info.maxScore) || 10;
 
-        const activeRing = isActive ? 'ring-2 ring-indigo-600 ring-offset-1' : '';
-        const styleClass = isDone
-          ? `bg-emerald-50 border-emerald-400 text-emerald-900 hover:bg-emerald-100 ${activeRing}`
-          : `bg-slate-50 border-slate-300 text-slate-700 hover:bg-indigo-50 ${activeRing}`;
+        const borderClass = isCurrent
+          ? 'border-2 border-indigo-600 shadow-sm'
+          : (isDone ? 'border border-emerald-300' : 'border border-slate-200');
+
+        const bgClass = isDone ? 'bg-emerald-50/70 hover:bg-emerald-50' : 'bg-slate-50/70 hover:bg-indigo-50/50';
+
+        const statusBadge = isDone
+          ? `<span class="inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-600 text-white">✓ ทำแล้ว ${score}/${maxScore}</span>`
+          : `<span class="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-600">○ ยังไม่ทำ</span>`;
 
         return `
           <button type="button" onclick="selectMissionByUnitKey('${escapeHtml(m.unit_key)}')"
-            class="px-3 py-1.5 rounded-xl border text-xs transition flex items-center gap-1.5 ${styleClass}">
-            <span class="font-bold">ด่าน ${stageNum}:</span>
-            <span class="truncate max-w-[130px]">${escapeHtml(m.mission_title_th)}</span>
-            <span class="font-bold ${isDone ? 'text-emerald-700' : 'text-slate-400'}">${scoreText}</span>
+            class="w-full p-3 rounded-xl text-left transition ${borderClass} ${bgClass} flex flex-col justify-between gap-2">
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-[11px] font-bold uppercase tracking-wide ${isDone ? 'text-emerald-800' : 'text-indigo-700'}">${stageLabel}</span>
+              ${statusBadge}
+            </div>
+            <div class="text-sm font-bold text-slate-800 truncate">${escapeHtml(m.mission_title_th)}</div>
           </button>
         `;
       }).join('');
 
-      if (summaryEl) {
-        summaryEl.innerText = `ผ่านแล้ว ${doneCount} / ${currentProvinceMissions.length} ด่าน`;
+      if (summary) {
+        summary.innerText = `ทำแล้ว ${completedCount} / ${currentProvinceMissions.length} ด่าน`;
       }
     }
 
@@ -652,7 +671,7 @@
       );
       const sel = document.getElementById('missionSelect');
       sel.innerHTML = currentProvinceMissions
-        .map((m, idx) => `<option value="${escapeHtml(m.unit_key)}">ด่าน ${idx + 1}: ${escapeHtml(m.mission_title_th)}</option>`)
+        .map((m, idx) => `<option value="${escapeHtml(m.unit_key)}">ด่านที่ ${idx + 1}: ${escapeHtml(m.mission_title_th)}</option>`)
         .join('');
 
       if (selectedUnitKey && currentProvinceMissions.some(m => String(m.unit_key) === String(selectedUnitKey))) {
@@ -660,7 +679,7 @@
       } else if (currentProvinceMissions.length > 0) {
         sel.value = currentProvinceMissions[0].unit_key;
       }
-      renderMissionStageChips(provId, sel.value);
+      renderMissionTrackerGrid(provId, sel.value);
     }
 
     function onProvinceChange() {
@@ -672,7 +691,7 @@
     async function onMissionChange() {
       const provId = document.getElementById('provinceSelect').value;
       const unitKey = document.getElementById('missionSelect').value;
-      renderMissionStageChips(provId, unitKey);
+      renderMissionTrackerGrid(provId, unitKey);
       document.getElementById('scoreCard').classList.add('hidden');
       document.getElementById('chatBox').innerHTML = '<div class="text-xs text-slate-400 text-center py-4">กำลังตรวจสอบความคืบหน้าเดิม...</div>';
 
@@ -684,10 +703,10 @@
           schoolName: currentUser.schoolName
         });
         completedMissionScores = loadAndMergeScores(currentUser.username, (res && res.completedMissionScores) || {});
-        renderMissionStageChips(provId, unitKey);
+        renderMissionTrackerGrid(provId, unitKey);
         restoreChatHistory(res && res.chatHistory ? res.chatHistory : []);
       } catch (err) {
-        renderMissionStageChips(provId, unitKey);
+        renderMissionTrackerGrid(provId, unitKey);
         restoreChatHistory([]);
       }
     }
@@ -714,7 +733,7 @@
             appendAiBubble(ai);
             if (ai.is_mission_complete && ai.evaluation) {
               recordCompletedMissionScore(provId, unitKey, ai.evaluation.total_score, 10);
-              renderMissionStageChips(provId, unitKey);
+              renderMissionTrackerGrid(provId, unitKey);
               showScoreCard(ai.evaluation);
             }
           } catch (e) {}
@@ -826,7 +845,7 @@
           recordCompletedMissionScore(provId, unitKey, ai.evaluation.total_score, 10);
           showScoreCard(ai.evaluation);
         }
-        renderMissionStageChips(provId, unitKey);
+        renderMissionTrackerGrid(provId, unitKey);
       } catch (err) {
         chatHistory.pop();
         alert(err.message);
