@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ยุวมัคคุเทศก์ไทย AI</title>
-  <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
-  <link href="[https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap](https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap)" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { font-family: 'Sarabun', sans-serif; }
     .pulse-mic { animation: pulse 1.2s infinite; }
@@ -104,7 +104,7 @@
       <div class="max-w-4xl mx-auto flex justify-between items-center">
         <div class="flex items-center gap-3">
           <div class="relative group cursor-pointer" onclick="document.getElementById('changeAvatarInput').click()" title="คลิกเพื่อเปลี่ยนรูปประจำตัว">
-            <img id="stAvatar" src="[https://ui-avatars.com/api/?name=Student&background=243b55&color=fff](https://ui-avatars.com/api/?name=Student&background=243b55&color=fff)" class="w-10 h-10 rounded-full object-cover border-2 border-amber-300">
+            <img id="stAvatar" src="https://ui-avatars.com/api/?name=Student&background=243b55&color=fff" class="w-10 h-10 rounded-full object-cover border-2 border-amber-300">
             <span class="absolute bottom-0 right-0 bg-amber-400 text-[10px] text-black px-1 rounded-full font-bold">✎</span>
           </div>
           <input id="changeAvatarInput" type="file" accept="image/*" class="hidden" onchange="handleChangeAvatar(event)">
@@ -127,7 +127,6 @@
           <select id="missionSelect" onchange="onMissionChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none"></select>
         </div>
       </div>
-
       <div id="missionStageBar" class="bg-white px-4 py-3 rounded-xl shadow-sm border border-slate-200 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <span class="text-xs font-bold text-slate-600">รายการภารกิจและตารางสรุปคะแนนในพื้นที่นี้</span>
@@ -155,9 +154,7 @@
           </table>
         </div>
       </div>
-
       <div id="chatBox" class="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 p-4 overflow-y-auto space-y-4 min-h-[320px] max-h-[55vh]"></div>
-
       <div id="scoreCard" class="hidden bg-emerald-50 border-2 border-emerald-400 rounded-xl p-4 shadow">
         <div class="flex justify-between items-center mb-2">
           <h3 class="font-bold text-emerald-900">🎉 ภารกิจสำเร็จ! ผลการประเมิน</h3>
@@ -175,7 +172,6 @@
           <button type="button" onclick="resetMissionProgressOnClient()" class="text-xs bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-lg font-semibold">🔄 ทำภารกิจนี้ใหม่</button>
         </div>
       </div>
-
       <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex items-center gap-2">
         <button id="micBtn" onclick="toggleMic()" title="กดเพื่อเปิดไมค์ และกดอีกครั้งเพื่อปิดไมค์" class="bg-rose-500 hover:bg-rose-600 text-white px-3.5 py-2.5 rounded-full flex-shrink-0 text-xs font-bold flex items-center gap-1">
           <span id="micIcon">🎤</span><span id="micLabel">พูด</span>
@@ -185,7 +181,6 @@
       </div>
     </main>
   </div>
-
   <!-- ==================== 3. DASHBOARD VIEW ==================== -->
   <div id="dashboardView" class="hidden flex-1 flex flex-col">
     <header class="bg-gradient-to-r from-[#141e30] to-[#243b55] text-white shadow-md">
@@ -290,9 +285,8 @@
       </div>
     </main>
   </div>
-
   <script>
-    const GAS_API_URL = '[https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec](https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec)';
+    const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec';
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
     const THAI_PROVINCES = [
       'กระบี่', 'กรุงเทพมหานคร', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร',
@@ -312,7 +306,6 @@
       'หนองบัวลำภู', 'อ่างทอง', 'อุดรธานี', 'อุทัยธานี', 'อุตรดิตถ์',
       'อุบลราชธานี', 'อำนาจเจริญ'
     ].sort((a, b) => a.localeCompare(b, 'th'));
-
     let currentUser = null;
     let allMissions = [];
     let allSchools = [];
@@ -324,7 +317,6 @@
     let currentProvinceMissions = [];
     let micBaseText = '';
     let micFinalText = '';
-
     async function callApi(action, payload = {}) {
       const res = await fetch(GAS_API_URL, {
         method: 'POST',
@@ -335,7 +327,6 @@
       if (!json.ok) throw new Error(json.error || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
       return json.data;
     }
-
     window.onload = async () => {
       setupSpeechRecognition();
       populateProvinceDropdown();
@@ -348,7 +339,6 @@
         alert('ไม่สามารถเชื่อมต่อฐานข้อมูลได้ กรุณาตรวจสอบ GAS_API_URL: ' + err.message);
       }
     };
-
     function populateProvinceDropdown() {
       const sel = document.getElementById('regSchoolProvince');
       if (!sel) return;
@@ -358,7 +348,6 @@
         sel.value = 'กาฬสินธุ์';
       }
     }
-
     function populateSchoolDropdown() {
       const sel = document.getElementById('regSchoolSelect');
       if (allSchools.length === 0) {
@@ -367,21 +356,18 @@
         sel.innerHTML = allSchools.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
       }
     }
-
     function switchAuthTab(tab) {
       document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
       document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
       document.getElementById('tabLogin').className = tab === 'login' ? 'flex-1 py-3 text-sm font-bold text-[#1e3a8a] border-b-2 border-[#1e3a8a] bg-white' : 'flex-1 py-3 text-sm font-semibold text-slate-500 hover:text-[#1e3a8a]';
       document.getElementById('tabReg').className = tab === 'register' ? 'flex-1 py-3 text-sm font-bold text-[#1e3a8a] border-b-2 border-[#1e3a8a] bg-white' : 'flex-1 py-3 text-sm font-semibold text-slate-500 hover:text-[#1e3a8a]';
     }
-
     function toggleRegFields() {
       const isTeacher = document.getElementById('regRole').value === 'Teacher';
       document.getElementById('studentSchoolBox').classList.toggle('hidden', isTeacher);
       document.getElementById('teacherSchoolBox').classList.toggle('hidden', !isTeacher);
       document.getElementById('avatarUploadBox').classList.toggle('hidden', isTeacher);
     }
-
     function resizeImageToBase64(file, maxSize, callback) {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -400,7 +386,6 @@
       };
       reader.readAsDataURL(file);
     }
-
     function doRegister() {
       const role = document.getElementById('regRole').value;
       const schoolName = role === 'Teacher'
@@ -439,7 +424,6 @@
         submitRegistration(form, btn);
       }
     }
-
     async function submitRegistration(form, btn) {
       try {
         const res = await callApi('registerUser', form);
@@ -453,7 +437,6 @@
         btn.disabled = false; btn.innerText = 'สมัครสมาชิก';
       }
     }
-
     async function doLogin() {
       const u = document.getElementById('loginUser').value.trim();
       const p = document.getElementById('loginPass').value.trim();
@@ -475,7 +458,6 @@
         btn.disabled = false; btn.innerText = 'เข้าสู่ระบบ';
       }
     }
-
     function logout() {
       stopMicManually();
       currentUser = null;
@@ -485,7 +467,6 @@
       document.getElementById('dashboardView').classList.add('hidden');
       document.getElementById('authView').classList.remove('hidden');
     }
-
     function getMissionScoreInfo(mission) {
       if (!mission || !completedMissionScores) return null;
       const pId = String(mission.province_id || '').trim().toLowerCase();
@@ -501,7 +482,6 @@
       }
       return null;
     }
-
     function formatMissionOptionText(mission, index) {
       const baseTitle = mission.mission_title_th || mission.unit_key || `ภารกิจที่ ${index + 1}`;
       const info = getMissionScoreInfo(mission);
@@ -510,13 +490,12 @@
       }
       return baseTitle;
     }
-
     function renderStudentSummaryTable(provId) {
       const tbody = document.getElementById('studentSummaryTableBody');
       if (!tbody) return;
       const units = ['unit1', 'unit2', 'unit3', 'unit4', 'unit5'];
       let total = 0;
-      const cells = units.map((uKey, idx) => {
+      const cells = units.map((uKey) => {
         const matched = currentProvinceMissions.find(m => String(m.unit_key || '').trim().toLowerCase() === uKey);
         const info = matched ? getMissionScoreInfo(matched) : null;
         if (info && info.done) {
@@ -531,7 +510,6 @@
           <td class="p-2 text-center font-bold text-[#1e3a8a] bg-blue-50/70">${total}</td>
         </tr>`;
     }
-
     function refreshMissionDropdownLabels(provId, selectedUnitKey) {
       const sel = document.getElementById('missionSelect');
       if (!sel) return;
@@ -547,7 +525,6 @@
       renderMissionStagePills(sel.value);
       renderStudentSummaryTable(provId);
     }
-
     function renderMissionStagePills(activeUnitKey) {
       const container = document.getElementById('missionStagePills');
       const countEl = document.getElementById('missionStageCount');
@@ -574,7 +551,6 @@
         countEl.textContent = `ผ่านแล้ว ${doneCount}/${currentProvinceMissions.length} ภารกิจ`;
       }
     }
-
     function selectMissionFromPill(unitKey) {
       const sel = document.getElementById('missionSelect');
       if (sel && sel.value !== unitKey) {
@@ -584,7 +560,6 @@
         renderMissionStagePills(unitKey);
       }
     }
-
     function initStudentView(lastProgress) {
       document.getElementById('studentView').classList.remove('hidden');
       document.getElementById('stName').innerText = currentUser.fullName;
@@ -606,20 +581,17 @@
         onProvinceChange();
       }
     }
-
     function populateMissionSelect(provId, selectedUnitKey = null) {
       currentProvinceMissions = allMissions.filter(
         m => String(m.province_id).trim().toLowerCase() === String(provId).trim().toLowerCase()
       );
       refreshMissionDropdownLabels(provId, selectedUnitKey);
     }
-
     function onProvinceChange() {
       const provId = document.getElementById('provinceSelect').value;
       populateMissionSelect(provId);
       onMissionChange();
     }
-
     async function onMissionChange() {
       const provId = document.getElementById('provinceSelect').value;
       const unitKey = document.getElementById('missionSelect').value;
@@ -643,7 +615,6 @@
         restoreChatHistory([]);
       }
     }
-
     function restoreChatHistory(history) {
       chatHistory = history || [];
       const box = document.getElementById('chatBox');
@@ -667,22 +638,18 @@
         }
       });
     }
-
     async function resetMissionProgressOnClient() {
       const provId = document.getElementById('provinceSelect').value;
       const unitKey = document.getElementById('missionSelect').value;
       if (!currentUser || !provId || !unitKey) return;
-
       const ok = confirm('ยืนยันทำภารกิจนี้ใหม่ตั้งแต่ต้นใช่หรือไม่? ระบบจะลบคะแนนและประวัติการสนทนาเดิมของภารกิจนี้ออก');
       if (!ok) return;
-
       stopMicManually();
       const btn = document.getElementById('btnRestartMission');
       if (btn) {
         btn.disabled = true;
         btn.innerText = 'กำลังรีเซ็ต...';
       }
-
       try {
         const res = await callApi('resetMissionProgress', {
           username: currentUser.username,
@@ -690,14 +657,12 @@
           provinceId: provId,
           unitKey: unitKey
         });
-
         chatHistory = [];
         if (res && res.completedMissionScores) {
           completedMissionScores = res.completedMissionScores;
         } else {
           delete completedMissionScores[`${String(provId).trim().toLowerCase()}|${String(unitKey).trim().toLowerCase()}`];
         }
-
         document.getElementById('scoreCard').classList.add('hidden');
         document.getElementById('userInput').value = '';
         micBaseText = '';
@@ -714,7 +679,6 @@
         }
       }
     }
-
     function handleChangeAvatar(e) {
       const file = e.target.files[0];
       if (!file) return;
@@ -729,7 +693,6 @@
         }
       });
     }
-
     function updateMicUi(recording) {
       const btn = document.getElementById('micBtn');
       const icon = document.getElementById('micIcon');
@@ -749,7 +712,6 @@
         if (input) input.placeholder = 'พิมพ์หรือกดไมค์พูดภาษารัสเซีย...';
       }
     }
-
     function setupSpeechRecognition() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) return;
@@ -757,12 +719,10 @@
       recognition.lang = 'ru-RU';
       recognition.continuous = true;
       recognition.interimResults = true;
-
       recognition.onstart = () => {
         isRecording = true;
         updateMicUi(true);
       };
-
       recognition.onresult = (e) => {
         let interim = '';
         let addedFinal = '';
@@ -782,7 +742,6 @@
           inputEl.value = `${micBaseText} ${micFinalText} ${interim}`.replace(/\s+/g, ' ').trim();
         }
       };
-
       recognition.onend = () => {
         if (isRecording) {
           try {
@@ -795,7 +754,6 @@
           updateMicUi(false);
         }
       };
-
       recognition.onerror = (e) => {
         if (e && e.error === 'no-speech' && isRecording) {
           return;
@@ -807,7 +765,6 @@
         }
       };
     }
-
     function stopMicManually() {
       isRecording = false;
       updateMicUi(false);
@@ -817,7 +774,6 @@
         } catch (err) {}
       }
     }
-
     function toggleMic() {
       if (!recognition) {
         alert('⚠️ เบราว์เซอร์นี้ไม่รองรับการรับเสียง กรุณาเปิดผ่าน Google Chrome ครับ');
@@ -839,14 +795,12 @@
         }
       }
     }
-
     function speakRussian(text) {
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'ru-RU'; utter.rate = 0.85;
       window.speechSynthesis.speak(utter);
     }
-
     async function sendMessage() {
       if (isRecording) {
         stopMicManually();
@@ -896,7 +850,6 @@
         sendBtn.disabled = false; sendBtn.innerText = 'ส่ง';
       }
     }
-
     function appendUserBubble(text) {
       const box = document.getElementById('chatBox');
       const div = document.createElement('div');
@@ -905,7 +858,6 @@
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
     }
-
     function appendAiBubble(ai) {
       const box = document.getElementById('chatBox');
       const id = 'tr_' + Math.random().toString(36).substr(2, 6);
@@ -927,7 +879,6 @@
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
     }
-
     function showScoreCard(ev) {
       document.getElementById('scoreCard').classList.remove('hidden');
       document.getElementById('totalScoreBadge').innerText = `${ev.total_score} / 10 คะแนน`;
@@ -937,7 +888,6 @@
       document.getElementById('scPolite').innerText = ev.politeness;
       document.getElementById('teacherFeedback').innerText = '📝 ข้อเสนอแนะ: ' + ev.teacher_feedback_th;
     }
-
     function getRoleDisplayInfo(role, schoolName) {
       const map = {
         admin: { badge: 'ADMIN • ALL SCHOOLS', title: '🛡️ แดชบอร์ดผู้ดูแลระบบ (Admin)' },
@@ -950,7 +900,6 @@
       };
       return map[role] || { badge: 'DASHBOARD', title: `📊 แดชบอร์ดติดตามคะแนน — ${schoolName}` };
     }
-
     function initDashboardView(role) {
       document.getElementById('dashboardView').classList.remove('hidden');
       const info = getRoleDisplayInfo(role, currentUser.schoolName);
@@ -979,11 +928,9 @@
         fetchDashboardData(currentUser.schoolName);
       }
     }
-
     function onSchoolFilterChange() {
       fetchDashboardData(document.getElementById('filterSchool').value);
     }
-
     async function fetchDashboardData(targetSchool) {
       document.getElementById('loadingIndicator').classList.remove('hidden');
       try {
@@ -1002,7 +949,6 @@
         document.getElementById('loadingIndicator').classList.add('hidden');
       }
     }
-
     function resetFilters() {
       document.getElementById('filterGender').value = 'ALL';
       document.getElementById('filterSearch').value = '';
@@ -1013,7 +959,6 @@
         applyClientFilters();
       }
     }
-
     function applyClientFilters() {
       const genderFilter = document.getElementById('filterGender').value;
       const searchText = document.getElementById('filterSearch').value.trim().toLowerCase();
@@ -1045,7 +990,7 @@
           <tr class="hover:bg-blue-50/40 transition">
             <td class="p-3">
               <div class="flex items-center gap-2.5">
-                <img src="${r.avatarUrl || '[https://ui-avatars.com/api/?name=](https://ui-avatars.com/api/?name=)' + encodeURIComponent(r.fullName) + '&background=dbeafe&color=1e3a8a'}" class="w-8 h-8 rounded-full object-cover border border-slate-200">
+                <img src="${r.avatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(r.fullName) + '&background=dbeafe&color=1e3a8a'}" class="w-8 h-8 rounded-full object-cover border border-slate-200">
                 <div>
                   <div class="font-bold text-slate-800">${escapeHtml(r.fullName)}</div>
                   <div class="text-[10px] text-slate-400">${escapeHtml(r.username)}</div>
@@ -1071,7 +1016,7 @@
       } else {
         progBox.innerHTML = filteredProgress.map(p => `
           <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5">
-            <img src="${p.avatarUrl || '[https://ui-avatars.com/api/?name=](https://ui-avatars.com/api/?name=)' + encodeURIComponent(p.fullName) + '&background=dbeafe&color=1e3a8a'}" class="w-9 h-9 rounded-full object-cover border">
+            <img src="${p.avatarUrl || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(p.fullName) + '&background=dbeafe&color=1e3a8a'}" class="w-9 h-9 rounded-full object-cover border">
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between gap-1">
                 <b class="text-[#141e30] truncate">${escapeHtml(p.fullName)}</b>
@@ -1084,13 +1029,11 @@
           </div>`).join('');
       }
     }
-
     function renderGenderBadge(gender) {
       if (gender === 'ชาย') return '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-[10px] font-bold">ชาย</span>';
       if (gender === 'หญิง') return '<span class="bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full text-[10px] font-bold">หญิง</span>';
       return `<span class="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-bold">${escapeHtml(gender || 'ไม่ระบุ')}</span>`;
     }
-
     function escapeHtml(str) {
       return String(str || '').replace(/[&<>"']/g, m => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
     }
