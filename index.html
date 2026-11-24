@@ -365,7 +365,13 @@
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ action, payload })
       });
-      const json = await res.json();
+      const rawText = await res.text();
+      let json;
+      try {
+        json = JSON.parse(rawText);
+      } catch (e) {
+        throw new Error('เซิร์ฟเวอร์ส่งข้อมูลที่ไม่ใช่ JSON กลับมา (ตรวจสอบการ Deploy Web App เป็น Anyone และเวอร์ชันล่าสุด): ' + rawText.slice(0, 80));
+      }
       if (!json.ok) throw new Error(json.error || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
       return json.data;
     }
