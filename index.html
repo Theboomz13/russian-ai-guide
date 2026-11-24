@@ -128,7 +128,6 @@
     </header>
 
     <main class="max-w-4xl w-full mx-auto flex-1 flex flex-col p-3 sm:p-4 gap-3">
-      <!-- การ์ดเลือกพื้นที่และภารกิจ -->
       <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label class="text-xs font-bold text-slate-600">1. เลือกพื้นที่ / จังหวัด</label>
@@ -140,7 +139,6 @@
         </div>
       </div>
 
-      <!-- แถบสถานะแต่ละภารกิจในพื้นที่ (แสดงหมายเลขด่าน + สถานะผ่าน/คะแนน) -->
       <div id="missionStageBar" class="bg-white px-4 py-3 rounded-xl shadow-sm border border-slate-200">
         <div class="flex items-center justify-between gap-2 mb-2">
           <span class="text-xs font-bold text-slate-600">รายการภารกิจในพื้นที่นี้</span>
@@ -149,10 +147,8 @@
         <div id="missionStagePills" class="flex flex-wrap gap-2"></div>
       </div>
 
-      <!-- กล่องสนทนา -->
       <div id="chatBox" class="flex-1 bg-white rounded-xl shadow-sm border border-slate-200 p-4 overflow-y-auto space-y-4 min-h-[320px] max-h-[55vh]"></div>
 
-      <!-- การ์ดคะแนนเมื่อผ่านภารกิจ -->
       <div id="scoreCard" class="hidden bg-emerald-50 border-2 border-emerald-400 rounded-xl p-4 shadow">
         <div class="flex justify-between items-center mb-2">
           <h3 class="font-bold text-emerald-900">🎉 ภารกิจสำเร็จ! ผลการประเมิน</h3>
@@ -171,7 +167,6 @@
         </div>
       </div>
 
-      <!-- ช่องพิมพ์/พูด -->
       <div class="bg-white p-2.5 rounded-xl shadow-sm border border-slate-200 flex items-center gap-2">
         <button id="micBtn" onclick="toggleMic()" title="พูดภาษารัสเซีย" class="bg-rose-500 hover:bg-rose-600 text-white p-3 rounded-full flex-shrink-0">🎤</button>
         <input id="userInput" type="text" placeholder="พิมพ์หรือกดไมค์พูดภาษารัสเซีย..." onkeypress="if(event.key==='Enter') sendMessage()" class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
@@ -294,9 +289,7 @@
 
   <script>
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec';
-
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
-
     const THAI_PROVINCES = [
       'กระบี่', 'กรุงเทพมหานคร', 'กาญจนบุรี', 'กาฬสินธุ์', 'กำแพงเพชร',
       'ขอนแก่น', 'จันทบุรี', 'ฉะเชิงเทรา', 'ชลบุรี', 'ชัยนาท',
@@ -494,16 +487,18 @@
     }
 
     function getMissionScoreInfo(mission) {
-      if (!mission) return null;
+      if (!mission || !completedMissionScores) return null;
       const pId = String(mission.province_id || '').trim().toLowerCase();
       const uKey = String(mission.unit_key || '').trim().toLowerCase();
-      const exactKey = `${pId}|${uKey}`;
-      if (completedMissionScores[exactKey]) return completedMissionScores[exactKey];
-      for (const [k, v] of Object.entries(completedMissionScores)) {
-        const parts = k.split('|');
-        const kp = String(parts[0] || '').trim().toLowerCase();
-        const ku = String(parts[1] || parts[0] || '').trim().toLowerCase();
-        if (kp === pId && ku === uKey) return v;
+      if (!pId || !uKey) return null;
+
+      const entry = completedMissionScores[`${pId}|${uKey}`];
+      if (entry && entry.done) {
+        return {
+          done: true,
+          score: Number(entry.score) || 0,
+          maxScore: Number(entry.maxScore) || 10
+        };
       }
       return null;
     }
@@ -512,9 +507,9 @@
       const baseTitle = mission.mission_title_th || mission.unit_key || `ภารกิจที่ ${index + 1}`;
       const info = getMissionScoreInfo(mission);
       if (info && info.done) {
-        return `ภารกิจที่ ${index + 1}: ${baseTitle} — ✓ ${info.score}/${info.maxScore || 10}`;
+        return `${baseTitle} — ✓ ${info.score}/${info.maxScore || 10}`;
       }
-      return `ภารกิจที่ ${index + 1}: ${baseTitle}`;
+      return baseTitle;
     }
 
     function refreshMissionDropdownLabels(provId, selectedUnitKey) {
@@ -523,8 +518,9 @@
       sel.innerHTML = currentProvinceMissions
         .map((m, idx) => `<option value="${escapeHtml(m.unit_key)}">${escapeHtml(formatMissionOptionText(m, idx))}</option>`)
         .join('');
-      if (selectedUnitKey && currentProvinceMissions.some(m => String(m.unit_key) === String(selectedUnitKey))) {
-        sel.value = selectedUnitKey;
+      if (selectedUnitKey && currentProvinceMissions.some(m => String(m.unit_key).toLowerCase() === String(selectedUnitKey).toLowerCase())) {
+        const matched = currentProvinceMissions.find(m => String(m.unit_key).toLowerCase() === String(selectedUnitKey).toLowerCase());
+        sel.value = matched.unit_key;
       } else if (currentProvinceMissions.length > 0) {
         sel.value = currentProvinceMissions[0].unit_key;
       }
@@ -541,8 +537,8 @@
         const info = getMissionScoreInfo(m);
         const isDone = Boolean(info && info.done);
         if (isDone) doneCount++;
-        const isSelected = String(m.unit_key) === String(activeUnitKey);
-        const label = `ด่าน ${idx + 1}: ${m.mission_title_th || m.unit_key}`;
+        const isSelected = String(m.unit_key).toLowerCase() === String(activeUnitKey).toLowerCase();
+        const label = m.mission_title_th || `ด่านที่ ${idx + 1}`;
 
         const badge = isDone
           ? `<span class="ml-1.5 px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-bold">✓ ${info.score}/${info.maxScore || 10}</span>`
@@ -625,7 +621,7 @@
           schoolName: currentUser.schoolName
         });
         if (res && res.completedMissionScores) {
-          completedMissionScores = { ...completedMissionScores, ...res.completedMissionScores };
+          completedMissionScores = res.completedMissionScores;
           refreshMissionDropdownLabels(provId, unitKey);
         }
         restoreChatHistory(res && res.chatHistory ? res.chatHistory : []);
@@ -759,7 +755,7 @@
         speakRussian(ai.reply_ru);
 
         if (res.completedMissionScores) {
-          completedMissionScores = { ...completedMissionScores, ...res.completedMissionScores };
+          completedMissionScores = res.completedMissionScores;
         }
         if (ai.is_mission_complete && ai.evaluation) {
           const scoreKey = `${String(provId).trim().toLowerCase()}|${String(unitKey).trim().toLowerCase()}`;
@@ -791,7 +787,7 @@
     function appendAiBubble(ai) {
       const box = document.getElementById('chatBox');
       const id = 'tr_' + Math.random().toString(36).substr(2, 6);
-      const safeRu = ai.reply_ru.replace(/'/g, "\\'");
+      const safeRu = String(ai.reply_ru || '').replace(/'/g, "\\'");
       const div = document.createElement('div');
       div.className = 'flex justify-start';
       div.innerHTML = `
