@@ -133,9 +133,20 @@
           <label class="text-xs font-bold text-slate-500">1. เลือกพื้นที่ / จังหวัด</label>
           <select id="provinceSelect" onchange="onProvinceChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white"></select>
         </div>
-        <div>
+
+        <!-- 2. เลือกภารกิจ (Custom Dropdown แสดงเครื่องหมายถูกสีเขียวและคะแนนตรงชื่อภารกิจ) -->
+        <div class="relative" id="missionDropdownContainer">
           <label class="text-xs font-bold text-slate-500">2. เลือกภารกิจ</label>
-          <select id="missionSelect" onchange="onMissionChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white"></select>
+          <select id="missionSelect" class="hidden"></select>
+          <button type="button" id="missionDropdownBtn" onclick="toggleMissionDropdown(event)"
+            class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white flex items-center justify-between gap-2 text-left focus:ring-2 focus:ring-indigo-500 outline-none">
+            <span id="missionDropdownSelected" class="truncate flex items-center gap-1.5">-- เลือกภารกิจ --</span>
+            <span class="text-slate-500 text-xs flex-shrink-0">▼</span>
+          </button>
+
+          <div id="missionDropdownMenu"
+            class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-30 max-h-64 overflow-y-auto divide-y divide-slate-100">
+          </div>
         </div>
       </div>
 
@@ -280,7 +291,6 @@
   </div>
 
   <script>
-    // ====== URL ของ Google Apps Script Web App ======
     const GAS_API_URL = 'https://script.google.com/macros/s/AKfycbxVA6Nh_3HTP59RYSY1VQYCcGrseI6rKSxNaWTBcJJQwnhbXfGhp2UimwtOVl5qFHGcDQ/exec';
 
     const ALL_SCHOOL_ROLES = ['admin', 'areadirector', 'supervisor', 'committee'];
@@ -307,11 +317,12 @@
     let currentUser = null;
     let allMissions = [];
     let allSchools = [];
-    let completedMissionScores = {}; // เก็บ { "provinceid|unitkey": { done, score, maxScore } }
+    let completedMissionScores = {};
     let rawDashboardData = { students: [], scores: [], progress: [] };
     let chatHistory = [];
     let isRecording = false;
     let recognition = null;
+    let currentProvinceMissions = [];
 
     async function callApi(action, payload = {}) {
       const res = await fetch(GAS_API_URL, {
@@ -323,6 +334,14 @@
       if (!json.ok) throw new Error(json.error || 'เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์');
       return json.data;
     }
+
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('missionDropdownContainer');
+      const menu = document.getElementById('missionDropdownMenu');
+      if (container && menu && !container.contains(e.target)) {
+        menu.classList.add('hidden');
+      }
+    });
 
     window.onload = async () => {
       setupSpeechRecognition();
@@ -389,7 +408,6 @@
       reader.readAsDataURL(file);
     }
 
-    // ==================== REGISTER & LOGIN ====================
     function doRegister() {
       const role = document.getElementById('regRole').value;
       const schoolName = role === 'Teacher'
@@ -481,7 +499,6 @@
       document.getElementById('authView').classList.remove('hidden');
     }
 
-    // ==================== STUDENT VIEW ====================
     function normalizeScoreMapClient(rawMap) {
       const out = {};
       if (!rawMap || typeof rawMap !== 'object') return out;
@@ -504,6 +521,7 @@
     }
 
     function findMissionScoreInfo(mission) {
+      if (!mission) return null;
       const pId = String(mission.province_id || '').trim().toLowerCase();
       const uKey = String(mission.unit_key || '').trim().toLowerCase();
       const exactKey = `${pId}|${uKey}`;
@@ -518,15 +536,67 @@
       return null;
     }
 
-    // รูปแบบข้อความหลังชื่อภารกิจใน Dropdown: "ชื่อภารกิจ ✅ ทำแล้ว (x/คะแนนเต็ม)"
-    function formatMissionOptionLabel(mission) {
+    function renderMissionLabelHtml(mission) {
+      const titleHtml = `<span>${escapeHtml(mission.mission_title_th)}</span>`;
       const info = findMissionScoreInfo(mission);
       if (info && info.done) {
         const earned = Number(info.score) || 0;
         const maxScore = Number(info.maxScore) || 10;
-        return `${mission.mission_title_th} ✅ ทำแล้ว (${earned}/${maxScore})`;
+        return `${titleHtml} <span class="inline-flex items-center gap-1 text-emerald-600 font-bold">✅ (${earned}/${maxScore})</span>`;
       }
-      return mission.mission_title_th;
+      return titleHtml;
+    }
+
+    function toggleMissionDropdown(event) {
+      if (event) event.stopPropagation();
+      const menu = document.getElementById('missionDropdownMenu');
+      menu.classList.toggle('hidden');
+    }
+
+    function renderMissionDropdown(provId, selectedUnitKey = null) {
+      currentProvinceMissions = allMissions.filter(
+        m => String(m.province_id).trim().toLowerCase() === String(provId).trim().toLowerCase()
+      );
+
+      const hiddenSelect = document.getElementById('missionSelect');
+      hiddenSelect.innerHTML = currentProvinceMissions
+        .map(m => `<option value="${escapeHtml(m.unit_key)}">${escapeHtml(m.mission_title_th)}</option>`)
+        .join('');
+
+      let activeMission = null;
+      if (selectedUnitKey) {
+        activeMission = currentProvinceMissions.find(
+          m => String(m.unit_key).trim().toLowerCase() === String(selectedUnitKey).trim().toLowerCase()
+        );
+      }
+      if (!activeMission && currentProvinceMissions.length > 0) {
+        activeMission = currentProvinceMissions[0];
+      }
+
+      const activeKey = activeMission ? activeMission.unit_key : '';
+      hiddenSelect.value = activeKey;
+
+      const selectedBox = document.getElementById('missionDropdownSelected');
+      selectedBox.innerHTML = activeMission ? renderMissionLabelHtml(activeMission) : '-- ไม่มีภารกิจ --';
+
+      const menu = document.getElementById('missionDropdownMenu');
+      menu.innerHTML = currentProvinceMissions.map(m => {
+        const isSelected = String(m.unit_key) === String(activeKey);
+        return `
+          <button type="button" onclick="selectMissionFromMenu('${escapeHtml(m.unit_key)}')"
+            class="w-full px-3.5 py-2.5 text-sm text-left flex items-center justify-between gap-2 hover:bg-indigo-50 transition ${isSelected ? 'bg-indigo-50/70 font-semibold text-indigo-950' : 'text-slate-800'}">
+            <span class="truncate flex items-center gap-1.5">${renderMissionLabelHtml(m)}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectMissionFromMenu(unitKey) {
+      document.getElementById('missionSelect').value = unitKey;
+      document.getElementById('missionDropdownMenu').classList.add('hidden');
+      const provId = document.getElementById('provinceSelect').value;
+      renderMissionDropdown(provId, unitKey);
+      onMissionChange();
     }
 
     function initStudentView(lastProgress) {
@@ -546,22 +616,16 @@
 
       if (lastProgress && provMap.has(lastProgress.provinceId)) {
         provSel.value = lastProgress.provinceId;
-        populateMissionDropdown(lastProgress.provinceId);
-        document.getElementById('missionSelect').value = lastProgress.unitKey;
+        renderMissionDropdown(lastProgress.provinceId, lastProgress.unitKey);
         restoreChatHistory(lastProgress.chatHistory);
       } else {
         onProvinceChange();
       }
     }
 
-    function populateMissionDropdown(provId) {
-      const list = allMissions.filter(m => String(m.province_id).trim().toLowerCase() === String(provId).trim().toLowerCase());
-      document.getElementById('missionSelect').innerHTML = list
-        .map(m => `<option value="${escapeHtml(m.unit_key)}">${escapeHtml(formatMissionOptionLabel(m))}</option>`).join('');
-    }
-
     function onProvinceChange() {
-      populateMissionDropdown(document.getElementById('provinceSelect').value);
+      const provId = document.getElementById('provinceSelect').value;
+      renderMissionDropdown(provId);
       onMissionChange();
     }
 
@@ -580,8 +644,7 @@
         });
         if (res && res.completedMissionScores) {
           completedMissionScores = normalizeScoreMapClient(res.completedMissionScores);
-          populateMissionDropdown(provId);
-          document.getElementById('missionSelect').value = unitKey;
+          renderMissionDropdown(provId, unitKey);
         }
         restoreChatHistory(res && res.chatHistory ? res.chatHistory : []);
       } catch (err) {
@@ -633,7 +696,6 @@
       });
     }
 
-    // ==================== CHAT & SPEECH (HTTPS DIRECT) ====================
     function setupSpeechRecognition() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) return;
@@ -714,8 +776,7 @@
 
         if (res.completedMissionScores) {
           completedMissionScores = normalizeScoreMapClient(res.completedMissionScores);
-          populateMissionDropdown(provId);
-          document.getElementById('missionSelect').value = unitKey;
+          renderMissionDropdown(provId, unitKey);
         }
         if (ai.is_mission_complete && ai.evaluation) {
           showScoreCard(ai.evaluation);
@@ -769,7 +830,6 @@
       document.getElementById('teacherFeedback').innerText = '📝 ข้อเสนอแนะ: ' + ev.teacher_feedback_th;
     }
 
-    // ==================== DASHBOARD ====================
     function getRoleDisplayInfo(role, schoolName) {
       const map = {
         admin: { badge: 'ADMIN • ALL SCHOOLS', title: '🛡️ แดชบอร์ดผู้ดูแลระบบ (Admin)' },
