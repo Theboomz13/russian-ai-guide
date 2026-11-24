@@ -128,25 +128,25 @@
     </header>
 
     <main class="max-w-3xl w-full mx-auto flex-1 flex flex-col p-3 gap-3">
-      <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label class="text-xs font-bold text-slate-500">1. เลือกพื้นที่ / จังหวัด</label>
-          <select id="provinceSelect" onchange="onProvinceChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white"></select>
+      <div class="bg-white p-3.5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs font-bold text-slate-500">1. เลือกพื้นที่ / จังหวัด</label>
+            <select id="provinceSelect" onchange="onProvinceChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white"></select>
+          </div>
+          <div>
+            <label class="text-xs font-bold text-slate-500">2. เลือกภารกิจ</label>
+            <select id="missionSelect" onchange="onMissionChange()" class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white"></select>
+          </div>
         </div>
 
-        <!-- 2. เลือกภารกิจ (Custom Dropdown แสดงเครื่องหมายถูกสีเขียวและคะแนนตรงชื่อภารกิจ) -->
-        <div class="relative" id="missionDropdownContainer">
-          <label class="text-xs font-bold text-slate-500">2. เลือกภารกิจ</label>
-          <select id="missionSelect" class="hidden"></select>
-          <button type="button" id="missionDropdownBtn" onclick="toggleMissionDropdown(event)"
-            class="w-full mt-1 px-3 py-2 text-sm border border-slate-300 rounded-xl bg-white flex items-center justify-between gap-2 text-left focus:ring-2 focus:ring-indigo-500 outline-none">
-            <span id="missionDropdownSelected" class="truncate flex items-center gap-1.5">-- เลือกภารกิจ --</span>
-            <span class="text-slate-500 text-xs flex-shrink-0">▼</span>
-          </button>
-
-          <div id="missionDropdownMenu"
-            class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl z-30 max-h-64 overflow-y-auto divide-y divide-slate-100">
+        <!-- แถบป้ายสถานะด่านภารกิจที่ชัดเจนสำหรับนักเรียน -->
+        <div class="pt-2 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-slate-600">สถานะด่านภารกิจของฉัน:</span>
+            <span id="missionSummaryCount" class="text-xs font-semibold text-indigo-700">ผ่านแล้ว 0 ด่าน</span>
           </div>
+          <div id="missionStageChips" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
 
@@ -335,14 +335,6 @@
       return json.data;
     }
 
-    document.addEventListener('click', (e) => {
-      const container = document.getElementById('missionDropdownContainer');
-      const menu = document.getElementById('missionDropdownMenu');
-      if (container && menu && !container.contains(e.target)) {
-        menu.classList.add('hidden');
-      }
-    });
-
     window.onload = async () => {
       setupSpeechRecognition();
       populateProvinceDropdown();
@@ -476,7 +468,7 @@
         currentUser = res.user;
         allSchools = res.schools || [];
         allMissions = res.missions || [];
-        completedMissionScores = normalizeScoreMapClient(res.completedMissionScores || {});
+        completedMissionScores = loadAndMergeScores(currentUser.username, res.completedMissionScores || {});
 
         document.getElementById('authView').classList.add('hidden');
         const role = currentUser.role.toLowerCase();
@@ -499,104 +491,135 @@
       document.getElementById('authView').classList.remove('hidden');
     }
 
-    function normalizeScoreMapClient(rawMap) {
-      const out = {};
-      if (!rawMap || typeof rawMap !== 'object') return out;
-      for (const [k, v] of Object.entries(rawMap)) {
-        if (!v) continue;
-        const parts = String(k).split('|');
-        const p = String(parts[0] || '').trim().toLowerCase();
-        const u = String(parts[1] || '').trim().toLowerCase();
-        const normKey = `${p}|${u}`;
-        const prev = out[normKey];
-        const scoreVal = Number(v.score) || 0;
-        const maxVal = Number(v.maxScore) || 10;
-        out[normKey] = {
-          done: Boolean(v.done) || scoreVal > 0,
-          score: prev ? Math.max(prev.score, scoreVal) : scoreVal,
-          maxScore: maxVal
-        };
+    function getLocalScoreStorageKey(username) {
+      return `ru_guide_scores_${String(username || '').trim().toLowerCase()}`;
+    }
+
+    function loadAndMergeScores(username, serverMap) {
+      const merged = {};
+      let localMap = {};
+      try {
+        const raw = localStorage.getItem(getLocalScoreStorageKey(username));
+        if (raw) localMap = JSON.parse(raw) || {};
+      } catch (e) {}
+
+      const ingest = (src) => {
+        if (!src || typeof src !== 'object') return;
+        for (const [k, v] of Object.entries(src)) {
+          if (!v) continue;
+          const scoreVal = Number(v.score) || 0;
+          const maxVal = Number(v.maxScore) || 10;
+          const isDone = Boolean(v.done) || scoreVal > 0;
+          const normKey = String(k).trim().toLowerCase();
+          if (!merged[normKey] || scoreVal >= merged[normKey].score) {
+            merged[normKey] = {
+              done: isDone || (merged[normKey] ? merged[normKey].done : false),
+              score: merged[normKey] ? Math.max(merged[normKey].score, scoreVal) : scoreVal,
+              maxScore: maxVal
+            };
+          }
+        }
+      };
+
+      ingest(localMap);
+      ingest(serverMap);
+
+      try {
+        localStorage.setItem(getLocalScoreStorageKey(username), JSON.stringify(merged));
+      } catch (e) {}
+
+      return merged;
+    }
+
+    function recordCompletedMissionScore(provId, unitKey, score, maxScore = 10) {
+      const p = String(provId || '').trim().toLowerCase();
+      const u = String(unitKey || '').trim().toLowerCase();
+      const numScore = Number(score) || 0;
+      const numMax = Number(maxScore) || 10;
+      const key = `${p}|${u}`;
+      const prev = completedMissionScores[key];
+      completedMissionScores[key] = {
+        done: true,
+        score: prev ? Math.max(prev.score, numScore) : numScore,
+        maxScore: numMax
+      };
+      if (currentUser && currentUser.username) {
+        try {
+          localStorage.setItem(getLocalScoreStorageKey(currentUser.username), JSON.stringify(completedMissionScores));
+        } catch (e) {}
       }
-      return out;
     }
 
     function findMissionScoreInfo(mission) {
       if (!mission) return null;
       const pId = String(mission.province_id || '').trim().toLowerCase();
       const uKey = String(mission.unit_key || '').trim().toLowerCase();
-      const exactKey = `${pId}|${uKey}`;
-      if (completedMissionScores[exactKey]) return completedMissionScores[exactKey];
+      const titleKey = String(mission.mission_title_th || '').trim().toLowerCase();
 
-      for (const k of Object.keys(completedMissionScores)) {
+      const candidateKeys = [
+        `${pId}|${uKey}`,
+        uKey,
+        titleKey ? `${pId}|${titleKey}` : ''
+      ].filter(Boolean);
+
+      for (const ck of candidateKeys) {
+        if (completedMissionScores[ck] && (completedMissionScores[ck].done || Number(completedMissionScores[ck].score) > 0)) {
+          return completedMissionScores[ck];
+        }
+      }
+
+      for (const [k, v] of Object.entries(completedMissionScores)) {
+        if (!v) continue;
         const parts = k.split('|');
         const kp = String(parts[0] || '').trim().toLowerCase();
-        const ku = String(parts[1] || '').trim().toLowerCase();
-        if (kp === pId && ku === uKey) return completedMissionScores[k];
+        const ku = String(parts[1] || parts[0] || '').trim().toLowerCase();
+        if ((kp === pId || !kp) && (ku === uKey || (titleKey && ku === titleKey)) && (v.done || Number(v.score) > 0)) {
+          return v;
+        }
       }
       return null;
     }
 
-    function renderMissionLabelHtml(mission) {
-      const titleHtml = `<span>${escapeHtml(mission.mission_title_th)}</span>`;
-      const info = findMissionScoreInfo(mission);
-      if (info && info.done) {
-        const earned = Number(info.score) || 0;
-        const maxScore = Number(info.maxScore) || 10;
-        return `${titleHtml} <span class="inline-flex items-center gap-1 text-emerald-600 font-bold">✅ (${earned}/${maxScore})</span>`;
-      }
-      return titleHtml;
-    }
+    function renderMissionStageChips(provId, activeUnitKey) {
+      const chipsBox = document.getElementById('missionStageChips');
+      const summaryEl = document.getElementById('missionSummaryCount');
+      if (!chipsBox) return;
 
-    function toggleMissionDropdown(event) {
-      if (event) event.stopPropagation();
-      const menu = document.getElementById('missionDropdownMenu');
-      menu.classList.toggle('hidden');
-    }
+      let doneCount = 0;
+      chipsBox.innerHTML = currentProvinceMissions.map((m, idx) => {
+        const info = findMissionScoreInfo(m);
+        const isDone = Boolean(info && info.done);
+        if (isDone) doneCount++;
+        const isActive = String(m.unit_key) === String(activeUnitKey);
+        const stageNum = idx + 1;
+        const scoreText = isDone ? `✅ ผ่านแล้ว (${Number(info.score) || 0}/${Number(info.maxScore) || 10})` : '○ ยังไม่ทำ';
 
-    function renderMissionDropdown(provId, selectedUnitKey = null) {
-      currentProvinceMissions = allMissions.filter(
-        m => String(m.province_id).trim().toLowerCase() === String(provId).trim().toLowerCase()
-      );
+        const activeRing = isActive ? 'ring-2 ring-indigo-600 ring-offset-1' : '';
+        const styleClass = isDone
+          ? `bg-emerald-50 border-emerald-400 text-emerald-900 hover:bg-emerald-100 ${activeRing}`
+          : `bg-slate-50 border-slate-300 text-slate-700 hover:bg-indigo-50 ${activeRing}`;
 
-      const hiddenSelect = document.getElementById('missionSelect');
-      hiddenSelect.innerHTML = currentProvinceMissions
-        .map(m => `<option value="${escapeHtml(m.unit_key)}">${escapeHtml(m.mission_title_th)}</option>`)
-        .join('');
-
-      let activeMission = null;
-      if (selectedUnitKey) {
-        activeMission = currentProvinceMissions.find(
-          m => String(m.unit_key).trim().toLowerCase() === String(selectedUnitKey).trim().toLowerCase()
-        );
-      }
-      if (!activeMission && currentProvinceMissions.length > 0) {
-        activeMission = currentProvinceMissions[0];
-      }
-
-      const activeKey = activeMission ? activeMission.unit_key : '';
-      hiddenSelect.value = activeKey;
-
-      const selectedBox = document.getElementById('missionDropdownSelected');
-      selectedBox.innerHTML = activeMission ? renderMissionLabelHtml(activeMission) : '-- ไม่มีภารกิจ --';
-
-      const menu = document.getElementById('missionDropdownMenu');
-      menu.innerHTML = currentProvinceMissions.map(m => {
-        const isSelected = String(m.unit_key) === String(activeKey);
         return `
-          <button type="button" onclick="selectMissionFromMenu('${escapeHtml(m.unit_key)}')"
-            class="w-full px-3.5 py-2.5 text-sm text-left flex items-center justify-between gap-2 hover:bg-indigo-50 transition ${isSelected ? 'bg-indigo-50/70 font-semibold text-indigo-950' : 'text-slate-800'}">
-            <span class="truncate flex items-center gap-1.5">${renderMissionLabelHtml(m)}</span>
+          <button type="button" onclick="selectMissionByUnitKey('${escapeHtml(m.unit_key)}')"
+            class="px-3 py-1.5 rounded-xl border text-xs transition flex items-center gap-1.5 ${styleClass}">
+            <span class="font-bold">ด่าน ${stageNum}:</span>
+            <span class="truncate max-w-[130px]">${escapeHtml(m.mission_title_th)}</span>
+            <span class="font-bold ${isDone ? 'text-emerald-700' : 'text-slate-400'}">${scoreText}</span>
           </button>
         `;
       }).join('');
+
+      if (summaryEl) {
+        summaryEl.innerText = `ผ่านแล้ว ${doneCount} / ${currentProvinceMissions.length} ด่าน`;
+      }
     }
 
-    function selectMissionFromMenu(unitKey) {
-      document.getElementById('missionSelect').value = unitKey;
-      document.getElementById('missionDropdownMenu').classList.add('hidden');
-      const provId = document.getElementById('provinceSelect').value;
-      renderMissionDropdown(provId, unitKey);
-      onMissionChange();
+    function selectMissionByUnitKey(unitKey) {
+      const sel = document.getElementById('missionSelect');
+      if (sel) {
+        sel.value = unitKey;
+        onMissionChange();
+      }
     }
 
     function initStudentView(lastProgress) {
@@ -616,22 +639,40 @@
 
       if (lastProgress && provMap.has(lastProgress.provinceId)) {
         provSel.value = lastProgress.provinceId;
-        renderMissionDropdown(lastProgress.provinceId, lastProgress.unitKey);
+        populateMissionSelect(lastProgress.provinceId, lastProgress.unitKey);
         restoreChatHistory(lastProgress.chatHistory);
       } else {
         onProvinceChange();
       }
     }
 
+    function populateMissionSelect(provId, selectedUnitKey = null) {
+      currentProvinceMissions = allMissions.filter(
+        m => String(m.province_id).trim().toLowerCase() === String(provId).trim().toLowerCase()
+      );
+      const sel = document.getElementById('missionSelect');
+      sel.innerHTML = currentProvinceMissions
+        .map((m, idx) => `<option value="${escapeHtml(m.unit_key)}">ด่าน ${idx + 1}: ${escapeHtml(m.mission_title_th)}</option>`)
+        .join('');
+
+      if (selectedUnitKey && currentProvinceMissions.some(m => String(m.unit_key) === String(selectedUnitKey))) {
+        sel.value = selectedUnitKey;
+      } else if (currentProvinceMissions.length > 0) {
+        sel.value = currentProvinceMissions[0].unit_key;
+      }
+      renderMissionStageChips(provId, sel.value);
+    }
+
     function onProvinceChange() {
       const provId = document.getElementById('provinceSelect').value;
-      renderMissionDropdown(provId);
+      populateMissionSelect(provId);
       onMissionChange();
     }
 
     async function onMissionChange() {
       const provId = document.getElementById('provinceSelect').value;
       const unitKey = document.getElementById('missionSelect').value;
+      renderMissionStageChips(provId, unitKey);
       document.getElementById('scoreCard').classList.add('hidden');
       document.getElementById('chatBox').innerHTML = '<div class="text-xs text-slate-400 text-center py-4">กำลังตรวจสอบความคืบหน้าเดิม...</div>';
 
@@ -642,12 +683,11 @@
           unitKey,
           schoolName: currentUser.schoolName
         });
-        if (res && res.completedMissionScores) {
-          completedMissionScores = normalizeScoreMapClient(res.completedMissionScores);
-          renderMissionDropdown(provId, unitKey);
-        }
+        completedMissionScores = loadAndMergeScores(currentUser.username, (res && res.completedMissionScores) || {});
+        renderMissionStageChips(provId, unitKey);
         restoreChatHistory(res && res.chatHistory ? res.chatHistory : []);
       } catch (err) {
+        renderMissionStageChips(provId, unitKey);
         restoreChatHistory([]);
       }
     }
@@ -663,13 +703,20 @@
         return;
       }
 
+      const provId = document.getElementById('provinceSelect').value;
+      const unitKey = document.getElementById('missionSelect').value;
+
       chatHistory.forEach(item => {
         if (item.role === 'user') appendUserBubble(item.parts[0].text);
         else {
           try {
             const ai = JSON.parse(item.parts[0].text);
             appendAiBubble(ai);
-            if (ai.is_mission_complete && ai.evaluation) showScoreCard(ai.evaluation);
+            if (ai.is_mission_complete && ai.evaluation) {
+              recordCompletedMissionScore(provId, unitKey, ai.evaluation.total_score, 10);
+              renderMissionStageChips(provId, unitKey);
+              showScoreCard(ai.evaluation);
+            }
           } catch (e) {}
         }
       });
@@ -774,13 +821,12 @@
         appendAiBubble(ai);
         speakRussian(ai.reply_ru);
 
-        if (res.completedMissionScores) {
-          completedMissionScores = normalizeScoreMapClient(res.completedMissionScores);
-          renderMissionDropdown(provId, unitKey);
-        }
+        completedMissionScores = loadAndMergeScores(currentUser.username, res.completedMissionScores || {});
         if (ai.is_mission_complete && ai.evaluation) {
+          recordCompletedMissionScore(provId, unitKey, ai.evaluation.total_score, 10);
           showScoreCard(ai.evaluation);
         }
+        renderMissionStageChips(provId, unitKey);
       } catch (err) {
         chatHistory.pop();
         alert(err.message);
